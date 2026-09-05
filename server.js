@@ -534,6 +534,9 @@ app.get("/api/data/register", async (req, res) => {
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
 } )
+app.get("/thanh-vien-moi", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
+} )
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
