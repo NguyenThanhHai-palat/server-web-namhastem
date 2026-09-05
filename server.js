@@ -71,6 +71,7 @@ const KEY_VALUE_ACCOUNT = "cal425c1cb46903d"; // api key of palat account
 app.post("/service/user/register", async (req, res) => {
   const {name,data1,data2,service, email, password } = req.body;
   if (!email || !password) {
+  console.log( req.body)
   return res.status(400).json({ message: "Thiếu dữ liệu" });
   }
   const iduser =  id_generator();
