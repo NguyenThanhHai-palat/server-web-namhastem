@@ -528,16 +528,7 @@ app.post("/service/user/reset-password", async (req, res) => {
     }
 });
 app.get("/api/data/register", async (req, res) => {
-  try {
-    const js = await fs.readFile("Web/service.js", "utf8");
-    const result = {
-      length: js.length,
-    };
-
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: "You cannot access" });
-  }
+  res.sendFile(path.join(__dirname, "Web","service.js"));
 });
 //290A29
 app.get("/", (req, res) => {
