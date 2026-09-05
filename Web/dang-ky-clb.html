@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng ký CLB Khám phá Công nghệ — THPT Nam Hà</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#E9F0F5;
+    --bg-2:#DDE7EE;
+    --card:#FBFDFE;
+    --card-alt:#F1F6F9;
+    --ink:#233240;
+    --ink-soft:#5B6B78;
+    --line:#CBD8E1;
+    --line-soft:#DEE7ED;
+    --accent:#3E6E8E;
+    --accent-dark:#2C526C;
+    --accent-soft:#DCE9F0;
+    --ok:#3F8560;
+    --ok-soft:#E1F0E7;
+    --err:#B85A47;
+    --err-soft:#F6E6E2;
+    --trace:#B9CAD5;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,255,255,0.6), transparent 45%),
+      linear-gradient(160deg, var(--bg-1), var(--bg-2) 70%);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 18px;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* circuit-trace background decoration */
+  .traces{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0.5;
+    z-index:0;
+  }
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:560px;
+  }
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line-soft);
+    border-radius:18px;
+    box-shadow:0 24px 60px -30px rgba(44,82,108,0.35);
+    overflow:hidden;
+  }
+
+  .head{
+    padding:34px 36px 26px;
+    border-bottom:1px solid var(--line-soft);
+    background:linear-gradient(180deg, var(--card-alt), var(--card));
+    position:relative;
+  }
+
+  .head svg.mark{ display:block; margin-bottom:16px; }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    color:var(--accent);
+    margin:0 0 6px;
+  }
+
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:26px;
+    line-height:1.25;
+    margin:0 0 8px;
+    color:var(--ink);
+  }
+
+  .head p.desc{
+    margin:0;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    line-height:1.55;
+    max-width:42ch;
+  }
+
+  form{ padding:30px 36px 36px; display:flex; flex-direction:column; gap:20px; }
+
+  .field{ display:flex; flex-direction:column; gap:7px; }
+
+  label{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  label .hint{
+    font-weight:400;
+    color:var(--ink-soft);
+    font-size:12.5px;
+  }
+
+  input[type=text], input[type=email], input[type=password], select, textarea{
+    font-family:'Inter', sans-serif;
+    font-size:14.5px;
+    color:var(--ink);
+    background:var(--card-alt);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:11px 13px;
+    outline:none;
+    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    width:100%;
+  }
+
+  input::placeholder, textarea::placeholder{ color:#93A4B0; }
+
+  input:focus, select:focus, textarea:focus{
+    border-color:var(--accent);
+    background:#fff;
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+
+  textarea{ resize:vertical; min-height:88px; line-height:1.5; }
+
+  .radio-group{ display:flex; flex-direction:column; gap:9px; }
+
+  .radio-opt{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:var(--card-alt);
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+
+  .radio-opt:hover{ border-color:var(--accent); }
+
+  .radio-opt input{ margin-top:3px; accent-color:var(--accent); width:auto; }
+
+  .radio-opt .opt-text{ font-size:14px; line-height:1.4; }
+
+  .radio-opt input:checked ~ .opt-text{ color:var(--accent-dark); font-weight:600; }
+
+  .radio-opt:has(input:checked){
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+
+  .checkline{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:2px 0;
+  }
+
+  .checkline input{ width:16px; height:16px; accent-color:var(--accent); }
+
+  .checkline label{ font-weight:500; font-size:14px; margin:0; }
+
+  .collapsible{
+    display:grid;
+    grid-template-rows:0fr;
+    opacity:0;
+    transition:grid-template-rows .28s ease, opacity .22s ease;
+  }
+
+  .collapsible.open{ grid-template-rows:1fr; opacity:1; }
+
+  .collapsible > div{ overflow:hidden; }
+
+  .collapsible .inner-pad{ padding-top:14px; }
+
+  button.submit-btn{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    color:#fff;
+    background:var(--accent-dark);
+    border:none;
+    border-radius:10px;
+    padding:14px 18px;
+    cursor:pointer;
+    margin-top:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    transition:background .15s ease, transform .1s ease;
+  }
+
+  button.submit-btn:hover{ background:var(--accent); }
+  button.submit-btn:active{ transform:translateY(1px); }
+
+  .spinner{
+    width:16px; height:16px;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.4);
+    border-top-color:#fff;
+    animation:spin .7s linear infinite;
+    display:none;
+  }
+
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .state-panel{
+    display:none;
+    padding:40px 36px 44px;
+    text-align:center;
+  }
+
+  .state-panel.show{ display:block; }
+
+  .state-icon{
+    width:56px; height:56px;
+    margin:0 auto 18px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .state-icon.ok{ background:var(--ok-soft); }
+  .state-icon.err{ background:var(--err-soft); }
+
+  .state-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:20px;
+    margin:0 0 8px;
+  }
+
+  .state-title.ok{ color:var(--ok); }
+  .state-title.err{ color:var(--err); }
+
+  .state-desc{
+    font-size:14.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    margin:0 0 4px;
+    max-width:38ch;
+    margin-left:auto; margin-right:auto;
+  }
+
+  .retry-btn{
+    margin-top:22px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    color:var(--accent-dark);
+    background:var(--accent-soft);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:11px 20px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+
+  .retry-btn:hover{ background:#cfe1ea; }
+
+  .field-error{
+    font-size:12.5px;
+    color:var(--err);
+    display:none;
+  }
+
+  .field.invalid input, .field.invalid select, .field.invalid textarea{
+    border-color:var(--err);
+  }
+
+  .field.invalid .field-error{ display:block; }
+
+  @media (prefers-reduced-motion: reduce){
+    .spinner{ animation:none; }
+    .collapsible{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="traces" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="#B9CAD5" stroke-width="1.4" fill="none" opacity="0.6">
+    <path d="M0 120 H220 V60 H520"/>
+    <path d="M0 640 H160 V760 H460 V700 H700"/>
+    <path d="M1440 200 H1180 V300 H900"/>
+    <path d="M1440 760 H1260 V620 H1000 V680"/>
+    <path d="M1440 40 H1320 V160"/>
+  </g>
+  <g fill="#B9CAD5" opacity="0.7">
+    <circle cx="220" cy="120" r="4"/>
+    <circle cx="520" cy="60" r="4"/>
+    <circle cx="160" cy="640" r="4"/>
+    <circle cx="460" cy="760" r="4"/>
+    <circle cx="700" cy="700" r="4"/>
+    <circle cx="1180" cy="200" r="4"/>
+    <circle cx="900" cy="300" r="4"/>
+    <circle cx="1260" cy="760" r="4"/>
+    <circle cx="1000" cy="620" r="4"/>
+    <circle cx="1320" cy="40" r="4"/>
+  </g>
+</svg>
+
+<div class="wrap">
+  <div class="panel">
+
+    <!-- ĐÃ ĐĂNG KÝ TRƯỚC ĐÓ -->
+    <div class="state-panel" id="statePreviouslyRegistered">
+      <div class="state-icon ok">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#3F8560" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2 class="state-title ok" id="prevRegisteredTitle">Bạn đã đăng ký</h2>
+      <p class="state-desc" id="prevRegisteredDesc">Xin chờ tới ngày tuyên bố thành lập CLB.</p>
+    </div>
+
+    <!-- FORM CHÍNH -->
+    <div id="formWrapper">
+      <div class="head">
+        <svg class="mark" width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <rect x="1" y="1" width="38" height="38" rx="9" stroke="#3E6E8E" stroke-width="1.6"/>
+          <path d="M12 27V13l8 8 8-8v14" stroke="#3E6E8E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="13" r="1.8" fill="#3E6E8E"/>
+          <circle cx="28" cy="13" r="1.8" fill="#3E6E8E"/>
+        </svg>
+        <p class="eyebrow">THPT Nam Hà</p>
+        <h1>Đăng ký CLB Khám phá Công nghệ</h1>
+        <p class="desc">Cùng thiết kế, lắp mạch và lập trình. Điền thông tin bên dưới để giữ một chỗ trong CLB.</p>
+      </div>
+
+      <form id="registerForm" novalidate>
+
+        <div class="field">
+          <label for="fullName">Họ và tên</label>
+          <input type="text" id="fullName" name="fullName" placeholder="Nguyễn Văn A" required>
+          <span class="field-error">Vui lòng nhập họ và tên.</span>
+        </div>
+
+        <div class="checkline">
+          <input type="checkbox" id="isAlumni" name="isAlumni">
+          <label for="isAlumni">Tôi là cựu học sinh của trường</label>
+        </div>
+
+        <div class="collapsible" id="classCollapse">
+          <div><div class="inner-pad">
+            <div class="field">
+              <label for="className">Lớp</label>
+              <input type="text" id="className" name="className" placeholder="VD: 11A3">
+              <span class="field-error">Vui lòng nhập lớp.</span>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="collapsible" id="alumniCollapse">
+          <div><div class="inner-pad">
+            <div class="field">
+              <label for="university">Trường Đại học / Cao đẳng</label>
+              <input type="text" id="university" name="university" placeholder="VD: Đại học Bách Khoa Hà Nội">
+              <span class="field-error">Vui lòng nhập tên trường.</span>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="field">
+          <label>Lĩnh vực quan tâm</label>
+          <div class="radio-group" id="interestGroup">
+            <label class="radio-opt">
+              <input type="radio" name="interest" value="design-3d">
+              <span class="opt-text">Công nghệ thiết kế kỹ thuật và in 3D</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="interest" value="electronics">
+              <span class="opt-text">Công nghệ điện tử và mạch điều khiển</span>
+            </label>
+            <label class="radio-opt">
+              <input type="radio" name="interest" value="embedded">
+              <span class="opt-text">Lập trình vi điều khiển và tự động hóa</span>
+            </label>
+          </div>
+          <span class="field-error" id="interestError">Vui lòng chọn một lĩnh vực.</span>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="ban@example.com" required>
+          <span class="field-error">Vui lòng nhập email hợp lệ.</span>
+        </div>
+
+        <div class="field">
+          <label for="password">Mật khẩu</label>
+          <input type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+          <span class="field-error">Mật khẩu cần ít nhất 6 ký tự.</span>
+        </div>
+
+        <div class="field">
+          <label for="reason">Vì sao bạn muốn tham gia? <span class="hint">(vài câu ngắn)</span></label>
+          <textarea id="reason" name="reason" placeholder="Chia sẻ lý do của bạn..." required></textarea>
+          <span class="field-error">Vui lòng chia sẻ lý do tham gia.</span>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="spinner" id="submitSpinner"></span>
+          <span id="submitLabel">Gửi đăng ký</span>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- THÀNH CÔNG -->
+    <div class="state-panel" id="stateSuccess">
+      <div class="state-icon ok">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#3F8560" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2 class="state-title ok">Đăng ký thành công</h2>
+      <p class="state-desc">Cảm ơn bạn đã đăng ký. Xin chờ tới ngày tuyên bố thành lập CLB.</p>
+    </div>
+
+    <!-- LỖI -->
+    <div class="state-panel" id="stateError">
+      <div class="state-icon err">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 8v5" stroke="#B85A47" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="16.2" r="1.1" fill="#B85A47"/><circle cx="12" cy="12" r="9.5" stroke="#B85A47" stroke-width="1.6"/></svg>
+      </div>
+      <h2 class="state-title err">Đăng ký lỗi</h2>
+      <p class="state-desc">Không thể gửi đăng ký lúc này. Có thể do kết nối mạng hoặc máy chủ phản hồi quá lâu.</p>
+      <button class="retry-btn" id="retryBtn">Đăng ký lại</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const COOKIE_NAME = 'namha_tech_club_registered';
+  const COOKIE_DAYS = 365;
+  const ENDPOINT = 'https://namha-tech.io.vn/register/new-nember';
+  const TIMEOUT_MS = 12000;
+
+  function setCookie(name, value, days){
+    const d = new Date();
+    d.setTime(d.getTime() + days*24*60*60*1000);
+    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+  }
+
+  function getCookie(name){
+    const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return match ? decodeURIComponent(match.pop()) : null;
+  }
+
+  const formWrapper = document.getElementById('formWrapper');
+  const statePrev = document.getElementById('statePreviouslyRegistered');
+  const stateSuccess = document.getElementById('stateSuccess');
+  const stateError = document.getElementById('stateError');
+
+  // Nếu đã đăng ký trước đó (cookie), hiện trạng thái chờ ngay khi tải trang
+  const existing = getCookie(COOKIE_NAME);
+  if (existing) {
+    let name = existing;
+    try { name = JSON.parse(existing).name || existing; } catch(e) {}
+    document.getElementById('prevRegisteredDesc').textContent =
+      name + ' đã đăng ký, xin chờ tới ngày tuyên bố thành lập CLB.';
+    formWrapper.style.display = 'none';
+    statePrev.classList.add('show');
+  }
+
+  const form = document.getElementById('registerForm');
+  const alumniCheck = document.getElementById('isAlumni');
+  const alumniCollapse = document.getElementById('alumniCollapse');
+  const classCollapse = document.getElementById('classCollapse');
+  classCollapse.classList.add('open');
+
+  alumniCheck.addEventListener('change', function(){
+    if (this.checked) {
+      alumniCollapse.classList.add('open');
+      classCollapse.classList.remove('open');
+    } else {
+      alumniCollapse.classList.remove('open');
+      classCollapse.classList.add('open');
+    }
+  });
+
+  const submitBtn = document.getElementById('submitBtn');
+  const submitSpinner = document.getElementById('submitSpinner');
+  const submitLabel = document.getElementById('submitLabel');
+  const retryBtn = document.getElementById('retryBtn');
+
+  function clearFieldErrors(){
+    form.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
+    document.getElementById('interestError').style.display = 'none';
+  }
+
+  function validate(){
+    clearFieldErrors();
+    let ok = true;
+
+    const requiredFields = [
+      { el: document.getElementById('fullName').closest('.field'), value: document.getElementById('fullName').value.trim() },
+      { el: document.getElementById('email').closest('.field'), value: document.getElementById('email').value.trim(), isEmail:true },
+      { el: document.getElementById('password').closest('.field'), value: document.getElementById('password').value, minLen:6 },
+      { el: document.getElementById('reason').closest('.field'), value: document.getElementById('reason').value.trim() },
+    ];
+
+    if (alumniCheck.checked) {
+      requiredFields.push({ el: document.getElementById('university').closest('.field'), value: document.getElementById('university').value.trim() });
+    } else {
+      requiredFields.push({ el: document.getElementById('className').closest('.field'), value: document.getElementById('className').value.trim() });
+    }
+
+    requiredFields.forEach(f => {
+      let invalid = !f.value;
+      if (!invalid && f.isEmail) invalid = !/^\S+@\S+\.\S+$/.test(f.value);
+      if (!invalid && f.minLen) invalid = f.value.length < f.minLen;
+      if (invalid) { f.el.classList.add('invalid'); ok = false; }
+    });
+
+    const interest = form.querySelector('input[name="interest"]:checked');
+    if (!interest) {
+      document.getElementById('interestError').style.display = 'block';
+      ok = false;
+    }
+
+    return ok;
+  }
+
+  function setLoading(loading){
+    submitBtn.disabled = loading;
+    submitSpinner.style.display = loading ? 'inline-block' : 'none';
+    submitLabel.textContent = loading ? 'Đang gửi...' : 'Gửi đăng ký';
+    if (loading) submitBtn.style.opacity = '0.85'; else submitBtn.style.opacity = '1';
+  }
+
+  function showSuccess(name){
+    setCookie(COOKIE_NAME, JSON.stringify({ name: name }), COOKIE_DAYS);
+    formWrapper.style.display = 'none';
+    stateError.classList.remove('show');
+    stateSuccess.classList.add('show');
+  }
+
+  function showError(){
+    formWrapper.style.display = 'none';
+    stateSuccess.classList.remove('show');
+    stateError.classList.add('show');
+  }
+
+  function backToForm(){
+    stateError.classList.remove('show');
+    formWrapper.style.display = '';
+    setLoading(false);
+  }
+
+  retryBtn.addEventListener('click', backToForm);
+
+  async function submitRegistration(payload){
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+
+      let bodyText = '';
+      try { bodyText = await res.text(); } catch(e) {}
+
+      const isOk = res.status === 200 || res.ok || /\bOK\b/i.test(bodyText.trim());
+
+      if (isOk) {
+        showSuccess(payload.fullName);
+      } else {
+        showError();
+      }
+    } catch (err) {
+      clearTimeout(timer);
+      showError();
+    }
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!validate()) return;
+
+    const isAlumni = alumniCheck.checked;
+    const payload = {
+      fullName: document.getElementById('fullName').value.trim(),
+      isAlumni: isAlumni,
+      className: isAlumni ? '' : document.getElementById('className').value.trim(),
+      university: isAlumni ? document.getElementById('university').value.trim() : '',
+      interest: form.querySelector('input[name="interest"]:checked').value,
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+      reason: document.getElementById('reason').value.trim()
+    };
+
+    setLoading(true);
+    submitRegistration(payload);
+  });
+})();
+</script>
+
+</body>
+</html>
