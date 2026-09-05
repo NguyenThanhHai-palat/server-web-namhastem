@@ -2,7 +2,7 @@
   const COOKIE_NAME = 'namha_tech_club_registered';
   const COOKIE_DAYS = 365;
   const ENDPOINT_SHEET = 'https://api.palat.io.vn/fetch/namhaitc/register';
-  const ENDPOINT_USER = 'https://namha-tech.io.vn/service/user/register';
+  const ENDPOINT_USER = '/service/user/register';
   const SERVICE_NAME = 'webclbnht';
   const TIMEOUT_MS = 12000;
 
