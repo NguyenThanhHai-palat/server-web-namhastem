@@ -529,7 +529,7 @@ app.post("/service/user/reset-password", async (req, res) => {
     }
 });
 app.get("/api/data/register", async (req, res) => {
-  res.sendFile(path.join(__dirname, "Web","dk.js"));
+  res.sendFile(path.join(__dirname, "Web","service.js"));
 });
 //290A29
 app.get("/", (req, res) => {
