@@ -541,6 +541,7 @@ app.get("/login.html", (req, res) => {
 app.get("/thanh-vien-moi", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
 } )
+app.use('/assets', express.static(path.join(__dirname, "Web","Webbuild","kaiadmin-lite-1.2.0","assets")));
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
