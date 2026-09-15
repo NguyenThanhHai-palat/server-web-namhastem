@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Nam Ha Tech Club - Đăng nhập</title>
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <link rel="stylesheet" href="assets/css/login.css" />
+  </head>
+  <body>
+    <div class="auth-page">
+      <div class="auth-card">
+        <div class="auth-header">
+        
+        </div>
+
+        <div class="auth-tabs" role="tablist" aria-label="Auth tabs">
+          <button class="tab-btn" hidden type="button" onclick="toggleAuth('login')">Đăng nhập</button>
+          <button class="tab-btn active" type="button" onclick="toggleAuth('register')">Đăng ký tham gia</button>
+        </div>
+
+        <form id="login-form" class="auth-form">
+          <div class="input-group">
+            <div class="input-with-icon">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="l_email" placeholder="  .. Email của bạn" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div class="input-with-icon">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="l_password" placeholder=" ... Mật khẩu" required>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <a href="#" onclick="alert('Vui lòng inbox với chủ web để được hỗ trợ khôi phục mật khẩu.')">Quên mật khẩu?</a>
+          </div>
+
+          <button type="button" class="btn-auth" onclick="login()">Đăng nhập</button>
+        </form>
+
+        <form id="register-form" class="auth-form  active">
+          <div class="field">
+            <label for="fullName">Họ và tên</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Nguyễn Văn A" required>
+            <span class="field-error">Vui lòng nhập họ và tên.</span>
+          </div>
+
+          <label class="checkline" for="isAlumni">
+            <input type="checkbox" id="isAlumni" name="isAlumni">
+            <span>Tôi là cựu học sinh của trường</span>
+          </label>
+
+          <div class="collapsible open" id="classCollapse">
+            <div class="field">
+              <label for="className">Lớp</label>
+              <input type="text" id="className" name="className" placeholder="VD: 11A3">
+              <span class="field-error">Vui lòng nhập lớp.</span>
+            </div>
+          </div>
+
+          <div class="collapsible" id="alumniCollapse">
+            <div class="field">
+              <label for="university">Trường Đại học / Cao đẳng</label>
+              <input type="text" id="university" name="university" placeholder="VD: Đại học Bách Khoa Hà Nội">
+              <span class="field-error">Vui lòng nhập tên trường.</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Lĩnh vực quan tâm</label>
+            <div class="radio-group" id="interestGroup">
+              <label class="radio-opt">
+                <input type="radio" name="interest" value="design-3d">
+                <span class="opt-text">Công nghệ thiết kế kỹ thuật và in 3D</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="interest" value="electronics">
+                <span class="opt-text">Công nghệ điện tử và mạch điều khiển</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="interest" value="embedded">
+                <span class="opt-text">Lập trình vi điều khiển và tự động hóa</span>
+              </label>
+            </div>
+            <span class="field-error" id="interestError">Vui lòng chọn một lĩnh vực.</span>
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="ban@example.com" required>
+            <span class="field-error">Vui lòng nhập email hợp lệ.</span>
+          </div>
+
+          <div class="field">
+            <label for="password">Mật khẩu</label>
+            <input type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+            <span class="field-error">Mật khẩu cần ít nhất 6 ký tự.</span>
+          </div>
+
+          <div class="field">
+            <label for="reason">Vì sao bạn muốn tham gia? <span class="hint">(vài câu ngắn)</span></label>
+            <textarea id="reason" name="reason" placeholder="Chia sẻ lý do của bạn..." required></textarea>
+            <span class="field-error">Vui lòng chia sẻ lý do tham gia.</span>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">Đăng ký</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function toggleAuth(type) {
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const tabs = document.querySelectorAll('.tab-btn');
+
+        if (type === 'login') {
+          loginForm.classList.add('active');
+          registerForm.classList.remove('active');
+          tabs[0].classList.add('active');
+          tabs[1].classList.remove('active');
+        } else {
+          loginForm.classList.remove('active');
+          registerForm.classList.add('active');
+          tabs[0].classList.remove('active');
+          tabs[1].classList.add('active');
+        }
+      }
+
+      const alumniCheck = document.getElementById('isAlumni');
+      const alumniCollapse = document.getElementById('alumniCollapse');
+      const classCollapse = document.getElementById('classCollapse');
+
+      function updateAlumniFields() {
+        if (alumniCheck.checked) {
+          alumniCollapse.classList.add('open');
+          classCollapse.classList.remove('open');
+        } else {
+          alumniCollapse.classList.remove('open');
+          classCollapse.classList.add('open');
+        }
+      }
+
+      alumniCheck.addEventListener('change', updateAlumniFields);
+      updateAlumniFields();
+    </script>
+  </body>
+</html>
+
+    <script src="assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Chart JS -->
+    <script src="assets/js/plugin/chart.js/chart.min.js"></script>
+
+    <!-- jQuery Sparkline -->
+    <script src="assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Chart Circle -->
+    <script src="assets/js/plugin/chart-circle/circles.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="assets/js/plugin/datatables/datatables.min.js"></script>
+
+    <!-- Bootstrap Notify -->
+    <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+    <!-- jQuery Vector Maps -->
+    <script src="assets/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+    <script src="assets/js/plugin/jsvectormap/world.js"></script>
+
+    <!-- Sweet Alert -->
+    <script src="assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="assets/js/kaiadmin.min.js"></script>
+
+    <!-- Kaiadmin DEMO methods, don't include it in your project! -->
+    <script src="assets/js/setting-demo.js"></script>
+    <script>
+      function toggleAuth(type) {
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const tabs = document.querySelectorAll('.tab-btn');
+
+        if (type === 'login') {
+          loginForm.classList.add('active');
+          registerForm.classList.remove('active');
+          tabs[0].classList.add('active');
+          tabs[1].classList.remove('active');
+        } else {
+          loginForm.classList.remove('active');
+          registerForm.classList.add('active');
+          tabs[0].classList.remove('active');
+          tabs[1].classList.add('active');
+        }
+      }
+
+
+      function updateAlumniFields() {
+        if (alumniCheck.checked) {
+          alumniCollapse.classList.add('open');
+          classCollapse.classList.remove('open');
+        } else {
+          alumniCollapse.classList.remove('open');
+          classCollapse.classList.add('open');
+        }
+      }
+
+      classCollapse.classList.add('open');
+      alumniCheck.addEventListener('change', updateAlumniFields);
+    </script>
+  </body>
+</html>

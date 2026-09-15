@@ -530,6 +530,9 @@ app.post("/service/user/reset-password", async (req, res) => {
 
 //290A29
 app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","Webbuild","kaiadmin-lite-1.2.0","starter-template.html"));
+} )
+app.get("/login.html", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
 } )
 app.listen(port, () => {
