@@ -71,6 +71,7 @@ const KEY_VALUE_ACCOUNT = "cal425c1cb46903d"; // api key of palat account
 app.post("/service/user/register", async (req, res) => {
   const {name,data1,data2,service, email, password } = req.body;
   if (!email || !password) {
+  console.log( req.body)
   return res.status(400).json({ message: "Thiếu dữ liệu" });
   }
   const iduser =  id_generator();
@@ -527,12 +528,17 @@ app.post("/service/user/reset-password", async (req, res) => {
         });
     }
 });
-
+app.get("/api/data/register", async (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","service.js"));
+});
 //290A29
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","Webbuild","kaiadmin-lite-1.2.0","starter-template.html"));
 } )
 app.get("/login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
+} )
+app.get("/thanh-vien-moi", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
 } )
 app.listen(port, () => {

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -334,15 +335,9 @@
     <!-- FORM CHÍNH -->
     <div id="formWrapper">
       <div class="head">
-        <svg class="mark" width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <rect x="1" y="1" width="38" height="38" rx="9" stroke="#3E6E8E" stroke-width="1.6"/>
-          <path d="M12 27V13l8 8 8-8v14" stroke="#3E6E8E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="13" r="1.8" fill="#3E6E8E"/>
-          <circle cx="28" cy="13" r="1.8" fill="#3E6E8E"/>
-        </svg>
-        <p class="eyebrow">THPT Nam Hà</p>
+        <p class="eyebrow">Trường THPT Nam Hà</p>
         <h1>Đăng ký CLB Khám phá Công nghệ</h1>
-        <p class="desc">Cùng thiết kế, lắp mạch và lập trình. Điền thông tin bên dưới để giữ một chỗ trong CLB.</p>
+        <p class="desc"></p>
       </div>
 
       <form id="registerForm" novalidate>
@@ -362,7 +357,7 @@
           <div><div class="inner-pad">
             <div class="field">
               <label for="className">Lớp</label>
-              <input type="text" id="className" name="className" placeholder="VD: 11A3">
+              <input type="text" id="className" name="className" placeholder="VD: 12A02">
               <span class="field-error">Vui lòng nhập lớp.</span>
             </div>
           </div></div>
@@ -372,7 +367,7 @@
           <div><div class="inner-pad">
             <div class="field">
               <label for="university">Trường Đại học / Cao đẳng</label>
-              <input type="text" id="university" name="university" placeholder="VD: Đại học Bách Khoa Hà Nội">
+              <input type="text" id="university" name="university" placeholder="VD: Trường Đại Học Bách Khoa - ĐHQG TpHCM">
               <span class="field-error">Vui lòng nhập tên trường.</span>
             </div>
           </div></div>
@@ -399,13 +394,13 @@
 
         <div class="field">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="ban@example.com" required>
+          <input type="email" id="email" name="email" placeholder="abc@gmail.com" required>
           <span class="field-error">Vui lòng nhập email hợp lệ.</span>
         </div>
 
         <div class="field">
           <label for="password">Mật khẩu</label>
-          <input type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+          <input type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự - Dùng để sau này đăng nhập" required minlength="6">
           <span class="field-error">Mật khẩu cần ít nhất 6 ký tự.</span>
         </div>
 
@@ -423,7 +418,7 @@
       </form>
     </div>
 
-    <!-- THÀNH CÔNG -->
+    <!-- TT-->
     <div class="state-panel" id="stateSuccess">
       <div class="state-icon ok">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#3F8560" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -432,189 +427,21 @@
       <p class="state-desc">Cảm ơn bạn đã đăng ký. Xin chờ tới ngày tuyên bố thành lập CLB.</p>
     </div>
 
-    <!-- LỖI -->
+
     <div class="state-panel" id="stateError">
       <div class="state-icon err">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 8v5" stroke="#B85A47" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="16.2" r="1.1" fill="#B85A47"/><circle cx="12" cy="12" r="9.5" stroke="#B85A47" stroke-width="1.6"/></svg>
       </div>
       <h2 class="state-title err">Đăng ký lỗi</h2>
-      <p class="state-desc">Không thể gửi đăng ký lúc này. Có thể do kết nối mạng hoặc máy chủ phản hồi quá lâu.</p>
+      <p class="state-desc" id="stateErrorDesc">Không thể gửi đăng ký lúc này. Có thể do kết nối mạng hoặc máy chủ phản hồi quá lâu.</p>
       <button class="retry-btn" id="retryBtn">Đăng ký lại</button>
     </div>
 
   </div>
 </div>
 
-<script>
-(function(){
-  const COOKIE_NAME = 'namha_tech_club_registered';
-  const COOKIE_DAYS = 365;
-  const ENDPOINT = 'https://namha-tech.io.vn/register/new-nember';
-  const TIMEOUT_MS = 12000;
+<script src="/api/data/register" defer>
 
-  function setCookie(name, value, days){
-    const d = new Date();
-    d.setTime(d.getTime() + days*24*60*60*1000);
-    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
-  }
-
-  function getCookie(name){
-    const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return match ? decodeURIComponent(match.pop()) : null;
-  }
-
-  const formWrapper = document.getElementById('formWrapper');
-  const statePrev = document.getElementById('statePreviouslyRegistered');
-  const stateSuccess = document.getElementById('stateSuccess');
-  const stateError = document.getElementById('stateError');
-
-  // Nếu đã đăng ký trước đó (cookie), hiện trạng thái chờ ngay khi tải trang
-  const existing = getCookie(COOKIE_NAME);
-  if (existing) {
-    let name = existing;
-    try { name = JSON.parse(existing).name || existing; } catch(e) {}
-    document.getElementById('prevRegisteredDesc').textContent =
-      name + ' đã đăng ký, xin chờ tới ngày tuyên bố thành lập CLB.';
-    formWrapper.style.display = 'none';
-    statePrev.classList.add('show');
-  }
-
-  const form = document.getElementById('registerForm');
-  const alumniCheck = document.getElementById('isAlumni');
-  const alumniCollapse = document.getElementById('alumniCollapse');
-  const classCollapse = document.getElementById('classCollapse');
-  classCollapse.classList.add('open');
-
-  alumniCheck.addEventListener('change', function(){
-    if (this.checked) {
-      alumniCollapse.classList.add('open');
-      classCollapse.classList.remove('open');
-    } else {
-      alumniCollapse.classList.remove('open');
-      classCollapse.classList.add('open');
-    }
-  });
-
-  const submitBtn = document.getElementById('submitBtn');
-  const submitSpinner = document.getElementById('submitSpinner');
-  const submitLabel = document.getElementById('submitLabel');
-  const retryBtn = document.getElementById('retryBtn');
-
-  function clearFieldErrors(){
-    form.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
-    document.getElementById('interestError').style.display = 'none';
-  }
-
-  function validate(){
-    clearFieldErrors();
-    let ok = true;
-
-    const requiredFields = [
-      { el: document.getElementById('fullName').closest('.field'), value: document.getElementById('fullName').value.trim() },
-      { el: document.getElementById('email').closest('.field'), value: document.getElementById('email').value.trim(), isEmail:true },
-      { el: document.getElementById('password').closest('.field'), value: document.getElementById('password').value, minLen:6 },
-      { el: document.getElementById('reason').closest('.field'), value: document.getElementById('reason').value.trim() },
-    ];
-
-    if (alumniCheck.checked) {
-      requiredFields.push({ el: document.getElementById('university').closest('.field'), value: document.getElementById('university').value.trim() });
-    } else {
-      requiredFields.push({ el: document.getElementById('className').closest('.field'), value: document.getElementById('className').value.trim() });
-    }
-
-    requiredFields.forEach(f => {
-      let invalid = !f.value;
-      if (!invalid && f.isEmail) invalid = !/^\S+@\S+\.\S+$/.test(f.value);
-      if (!invalid && f.minLen) invalid = f.value.length < f.minLen;
-      if (invalid) { f.el.classList.add('invalid'); ok = false; }
-    });
-
-    const interest = form.querySelector('input[name="interest"]:checked');
-    if (!interest) {
-      document.getElementById('interestError').style.display = 'block';
-      ok = false;
-    }
-
-    return ok;
-  }
-
-  function setLoading(loading){
-    submitBtn.disabled = loading;
-    submitSpinner.style.display = loading ? 'inline-block' : 'none';
-    submitLabel.textContent = loading ? 'Đang gửi...' : 'Gửi đăng ký';
-    if (loading) submitBtn.style.opacity = '0.85'; else submitBtn.style.opacity = '1';
-  }
-
-  function showSuccess(name){
-    setCookie(COOKIE_NAME, JSON.stringify({ name: name }), COOKIE_DAYS);
-    formWrapper.style.display = 'none';
-    stateError.classList.remove('show');
-    stateSuccess.classList.add('show');
-  }
-
-  function showError(){
-    formWrapper.style.display = 'none';
-    stateSuccess.classList.remove('show');
-    stateError.classList.add('show');
-  }
-
-  function backToForm(){
-    stateError.classList.remove('show');
-    formWrapper.style.display = '';
-    setLoading(false);
-  }
-
-  retryBtn.addEventListener('click', backToForm);
-
-  async function submitRegistration(payload){
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-    try {
-      const res = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-      clearTimeout(timer);
-
-      let bodyText = '';
-      try { bodyText = await res.text(); } catch(e) {}
-
-      const isOk = res.status === 200 || res.ok || /\bOK\b/i.test(bodyText.trim());
-
-      if (isOk) {
-        showSuccess(payload.fullName);
-      } else {
-        showError();
-      }
-    } catch (err) {
-      clearTimeout(timer);
-      showError();
-    }
-  }
-
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    if (!validate()) return;
-
-    const isAlumni = alumniCheck.checked;
-    const payload = {
-      fullName: document.getElementById('fullName').value.trim(),
-      isAlumni: isAlumni,
-      className: isAlumni ? '' : document.getElementById('className').value.trim(),
-      university: isAlumni ? document.getElementById('university').value.trim() : '',
-      interest: form.querySelector('input[name="interest"]:checked').value,
-      email: document.getElementById('email').value.trim(),
-      password: document.getElementById('password').value,
-      reason: document.getElementById('reason').value.trim()
-    };
-
-    setLoading(true);
-    submitRegistration(payload);
-  });
-})();
 </script>
 
 </body>
