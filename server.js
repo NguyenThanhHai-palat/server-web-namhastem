@@ -62,6 +62,23 @@ function id_generator(){
   const resulta = (Date.now()) % 1000+ kyTu[Math.floor(Math.random() * kyTu.length)] + "-"+Math.floor(Math.random()*100)+"-"+(datea%100+Math.floor(Math.random()*10000))+"-"+ketQua;
   return resulta
 }
+
+async function sendEmail(who, subject, text, html) {
+    try {
+        const info = await transporter.sendMail({
+            from: `"Nam Ha Tech Support" <${process.env.SMTP_USER}>`,
+            to: who,
+            subject: subject,
+            text: text,
+            html: html,
+        });
+
+        console.log("Email đã được gửi thành công: %s", info.messageId);
+    } catch (error) {
+        console.error("Lỗi khi gửi email:", error);
+    }
+}
+
 const SECRET = "krlc4541ab469930"; // api key of palat exam
 const KEY_VALUE_ACCOUNT = "cal425c1cb46903d"; // api key of palat account
 
@@ -396,6 +413,31 @@ app.post("/service/user/verify-reset", async (req, res) => {
         });
     }
 });
+
+app.post('/api/send-email', async (req, res) => {
+    try {
+        const { to, subject, text, html } = req.body;
+        if (!to || !subject) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Thiếu thông tin bắt buộc: 'to' (người nhận) hoặc 'subject' (tiêu đề)!" 
+            });
+        }
+        await sendEmail(to, subject, text || "", html || "");
+        return res.status(200).json({ 
+            success: true, 
+            message: "Email đã được gửi thành công!" 
+        });
+
+    } catch (error) {
+        return res.status(500).json({ 
+            success: false, 
+            message: "Không thể gửi email do lỗi hệ thống.", 
+            error: error.message 
+        });
+    }
+});
+
 app.post("/service/user/reset-password", async (req, res) => {
     try {
         const {
