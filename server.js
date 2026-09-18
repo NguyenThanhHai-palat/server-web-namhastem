@@ -65,7 +65,7 @@ function id_generator(){
 
 async function sendEmail(who, subject, text, html) {
     try {
-        const info = await transporter.sendMail({
+        const info = await smtpTransporter.sendMail({
             from: `"Nam Ha Tech Support" <${process.env.SMTP_USER}>`,
             to: who,
             subject: subject,
