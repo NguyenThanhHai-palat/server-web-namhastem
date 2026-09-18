@@ -5,6 +5,7 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const bodyParser = require("body-parser");
 const app = express();
+require('dotenv').config({ path: '/root/server-web-namhastem/.env' });
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const port = 3000;
