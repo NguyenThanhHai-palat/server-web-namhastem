@@ -439,6 +439,7 @@ app.post('/api/send-email', async (req, res) => {
     }
 });
 
+
 app.post("/service/user/reset-password", async (req, res) => {
     try {
         const {
@@ -580,6 +581,9 @@ app.get("/", (req, res) => {
 } )
 app.get("/login.html", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
+} )
+app.get("/dang-nhap", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","chuamodichvu.html"));
 } )
 app.get("/thanh-vien-moi", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));

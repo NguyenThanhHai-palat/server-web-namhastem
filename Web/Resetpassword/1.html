@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quên mật khẩu — NamHà Tech Club</title>
+<style>
+  :root{
+    --teal-900:#27528a --teal-800:#0d5566; --teal-700:#12697d;
+    --teal-600:#1a8296; --teal-400:#5cb3c2; --teal-100:#e4f2f4;
+    --paper:#f6f4ee; --ink:#27528a; --line:rgba(10,63,74,0.18);
+    --error:#b3261e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--teal-100); color:var(--ink); font-family:Arial, Helvetica, sans-serif;
+    padding:24px 16px;
+  }
+  .circuit-bg{position:fixed; inset:0; z-index:0; opacity:0.35; pointer-events:none;}
+  .circuit-bg svg{width:100%; height:100%;}
+  .card{
+    position:relative; z-index:1; width:100%; max-width:420px;
+    background:var(--paper); border:2px solid var(--teal-800);
+    box-shadow:0 0 0 6px var(--paper), 0 0 0 8px var(--teal-600), 0 24px 60px -20px rgba(10,63,74,0.45);
+  }
+  .masthead{
+    background:var(--teal-800); color:var(--paper); padding:22px 28px;
+    display:flex; align-items:center; gap:12px; border-bottom:3px solid var(--teal-900);
+  }
+  .gear{width:34px; height:34px; flex-shrink:0; color:var(--teal-100);}
+  .brand-name{font-size:19px; font-weight:800; letter-spacing:0.5px;}
+  .brand-sub{font-size:10px; font-weight:700; letter-spacing:3px; color:var(--teal-100); opacity:0.9; margin-top:3px;}
+  .body-area{padding:34px 30px 30px;}
+  .step-track{display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:22px;}
+  .step-dot{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;}
+  .step-dot.active{background:var(--teal-700); color:var(--paper);}
+  .step-dot.pending{background:var(--teal-100); color:var(--teal-700); border:1px solid var(--line);}
+  .step-line{width:26px; height:2px; background:var(--line);}
+  h1{font-size:21px; margin:0 0 8px; color:var(--teal-800); text-align:center;}
+  p.desc{font-size:14px; line-height:1.6; color:var(--ink); opacity:0.85; text-align:center; margin:0 0 26px;}
+  label{display:block; font-size:13px; font-weight:700; color:var(--teal-700); margin-bottom:8px;}
+  input[type=email]{
+    width:100%; padding:12px 14px; font-size:15px; border:2px solid var(--teal-600);
+    background:var(--paper); color:var(--ink); font-family:inherit; margin-bottom:6px;
+  }
+  input[type=email]:focus{outline:3px solid var(--teal-400); outline-offset:1px;}
+  .err-msg{font-size:12.5px; color:var(--error); min-height:16px; margin-bottom:14px;}
+  button{
+    width:100%; padding:13px; font-size:15px; font-weight:700; font-family:inherit;
+    background:var(--teal-700); color:var(--paper); border:2px solid var(--teal-700); cursor:pointer; letter-spacing:0.3px;
+  }
+  button:hover{background:var(--teal-800); border-color:var(--teal-800);}
+  button:disabled{opacity:0.6; cursor:not-allowed;}
+  .back-link{display:block; text-align:center; margin-top:18px; font-size:13px; color:var(--teal-700); text-decoration:none; font-weight:700;}
+  .back-link:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="circuit-bg" aria-hidden="true">
+  <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#1a8296" stroke-width="1.4" fill="none" opacity="0.4">
+      <path d="M0 80 H160 V40 H320"/>
+      <path d="M800 420 H700 V380 H560 V440 H420"/>
+      <path d="M40 520 H180 V480 H300 V560"/>
+    </g>
+    <g fill="#1a8296" opacity="0.55">
+      <circle cx="160" cy="80" r="4"/><circle cx="320" cy="40" r="4"/>
+      <circle cx="700" cy="420" r="4"/><circle cx="420" cy="440" r="4"/>
+      <circle cx="180" cy="520" r="4"/><circle cx="300" cy="560" r="4"/>
+    </g>
+  </svg>
+</div>
+
+<div class="card">
+  <div class="masthead">
+    <svg class="gear" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="10 8"/>
+      <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="8"/>
+    </svg>
+    <div>
+      <div class="brand-name">NamHà Tech Club</div>
+      <div class="brand-sub">CÂU LẠC BỘ CÔNG NGHỆ</div>
+    </div>
+  </div>
+
+  <div class="body-area">
+    <div class="step-track">
+      <div class="step-dot active">1</div><div class="step-line"></div>
+      <div class="step-dot pending">2</div><div class="step-line"></div>
+      <div class="step-dot pending">3</div>
+    </div>
+
+    <h1>Quên mật khẩu?</h1>
+    <p class="desc">Nhập email đã đăng ký, chúng tôi sẽ gửi mã OTP gồm 6 số để xác thực.</p>
+
+    <form id="emailForm" novalidate>
+      <label for="email">Địa chỉ email</label>
+      <input type="email" id="email" name="email" placeholder="ten@vidu.com" autocomplete="email" required>
+      <div class="err-msg" id="errMsg"></div>
+      <button type="submit" id="submitBtn">Gửi mã OTP</button>
+    </form>
+
+    <a class="back-link" href="#">&larr; Quay lại đăng nhập</a>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('emailForm');
+  const emailInput = document.getElementById('email');
+  const errMsg = document.getElementById('errMsg');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function isValidEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    const val = emailInput.value.trim();
+
+    if(!val){
+      errMsg.textContent = 'Vui lòng nhập email.';
+      return;
+    }
+    if(!isValidEmail(val)){
+      errMsg.textContent = 'Email không hợp lệ.';
+      return;
+    }
+    errMsg.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang gửi mã...';
+
+    // TODO: Thay đoạn dưới bằng lời gọi API thật, ví dụ:
+    // fetch('/api/auth/send-otp', {
+    //   method: 'POST',
+    //   headers: {'Content-Type':'application/json'},
+    //   body: JSON.stringify({ email: val })
+    // })
+    // .then(res => res.json())
+    // .then(data => { if(data.success){ /* điều hướng bước 2 */ } })
+    // .catch(() => { errMsg.textContent = 'Có lỗi xảy ra, thử lại sau.'; submitBtn.disabled=false; });
+
+    sessionStorage.setItem('reset_email', val);
+
+    setTimeout(function(){
+      window.location.href = '2-nhap-otp.html';
+    }, 700);
+  });
+</script>
+
+</body>
+</html>

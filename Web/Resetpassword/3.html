@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đặt lại mật khẩu — NamHà Tech Club</title>
+<style>
+  :root{
+    --teal-900:#0a3f4a; --teal-800:#0d5566; --teal-700:#12697d;
+    --teal-600:#1a8296; --teal-400:#5cb3c2; --teal-100:#e4f2f4;
+    --paper:#f6f4ee; --ink:#0a3f4a; --line:rgba(10,63,74,0.18);
+    --error:#b3261e; --good:#1a8296;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--teal-100); color:var(--ink); font-family:Arial, Helvetica, sans-serif;
+    padding:24px 16px;
+  }
+  .circuit-bg{position:fixed; inset:0; z-index:0; opacity:0.35; pointer-events:none;}
+  .circuit-bg svg{width:100%; height:100%;}
+  .card{
+    position:relative; z-index:1; width:100%; max-width:420px;
+    background:var(--paper); border:2px solid var(--teal-800);
+    box-shadow:0 0 0 6px var(--paper), 0 0 0 8px var(--teal-600), 0 24px 60px -20px rgba(10,63,74,0.45);
+  }
+  .masthead{
+    background:var(--teal-800); color:var(--paper); padding:22px 28px;
+    display:flex; align-items:center; gap:12px; border-bottom:3px solid var(--teal-900);
+  }
+  .gear{width:34px; height:34px; flex-shrink:0; color:var(--teal-100);}
+  .brand-name{font-size:19px; font-weight:800; letter-spacing:0.5px;}
+  .brand-sub{font-size:10px; font-weight:700; letter-spacing:3px; color:var(--teal-100); opacity:0.9; margin-top:3px;}
+  .body-area{padding:34px 30px 30px;}
+  .step-track{display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:22px;}
+  .step-dot{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;}
+  .step-dot.done{background:var(--teal-600); color:var(--paper);}
+  .step-dot.active{background:var(--teal-700); color:var(--paper);}
+  .step-line{width:26px; height:2px; background:var(--line);}
+  h1{font-size:21px; margin:0 0 8px; color:var(--teal-800); text-align:center;}
+  p.desc{font-size:14px; line-height:1.6; color:var(--ink); opacity:0.85; text-align:center; margin:0 0 26px;}
+  label{display:block; font-size:13px; font-weight:700; color:var(--teal-700); margin-bottom:8px;}
+  .pw-wrap{position:relative; margin-bottom:6px;}
+  input[type=password], input[type=text].pw-field{
+    width:100%; padding:12px 44px 12px 14px; font-size:15px; border:2px solid var(--teal-600);
+    background:var(--paper); color:var(--ink); font-family:inherit;
+  }
+  input:focus{outline:3px solid var(--teal-400); outline-offset:1px;}
+  .toggle-pw{
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    background:none; border:none; width:auto; padding:4px; cursor:pointer;
+    font-size:12px; font-weight:700; color:var(--teal-700);
+  }
+  .strength-track{height:6px; background:var(--teal-100); margin-bottom:6px; overflow:hidden;}
+  .strength-fill{height:100%; width:0%; background:var(--error); transition:width 0.2s, background 0.2s;}
+  .strength-label{font-size:12px; color:var(--ink); opacity:0.75; margin-bottom:18px;}
+  .field-block{margin-bottom:18px;}
+  .err-msg{font-size:12.5px; color:var(--error); min-height:16px; margin:4px 0 4px;}
+  ul.rules{font-size:12.5px; color:var(--ink); opacity:0.8; margin:0 0 22px; padding-left:18px; line-height:1.7;}
+  button{
+    width:100%; padding:13px; font-size:15px; font-weight:700; font-family:inherit;
+    background:var(--teal-700); color:var(--paper); border:2px solid var(--teal-700); cursor:pointer; letter-spacing:0.3px;
+  }
+  button:hover{background:var(--teal-800); border-color:var(--teal-800);}
+  button:disabled{opacity:0.6; cursor:not-allowed;}
+  .success-box{display:none; text-align:center;}
+  .success-box .check{
+    width:56px; height:56px; border-radius:50%; background:var(--teal-700); color:var(--paper);
+    display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 18px;
+  }
+  .success-box h1{margin-bottom:10px;}
+  .success-box p.desc{margin-bottom:26px;}
+</style>
+</head>
+<body>
+
+<div class="circuit-bg" aria-hidden="true">
+  <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#1a8296" stroke-width="1.4" fill="none" opacity="0.4">
+      <path d="M0 80 H160 V40 H320"/>
+      <path d="M800 420 H700 V380 H560 V440 H420"/>
+      <path d="M40 520 H180 V480 H300 V560"/>
+    </g>
+    <g fill="#1a8296" opacity="0.55">
+      <circle cx="160" cy="80" r="4"/><circle cx="320" cy="40" r="4"/>
+      <circle cx="700" cy="420" r="4"/><circle cx="420" cy="440" r="4"/>
+      <circle cx="180" cy="520" r="4"/><circle cx="300" cy="560" r="4"/>
+    </g>
+  </svg>
+</div>
+
+<div class="card">
+  <div class="masthead">
+    <svg class="gear" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="10 8"/>
+      <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="8"/>
+    </svg>
+    <div>
+      <div class="brand-name">NamHà Tech Club</div>
+      <div class="brand-sub">CÂU LẠC BỘ CÔNG NGHỆ</div>
+    </div>
+  </div>
+
+  <div class="body-area">
+
+    <div id="formView">
+      <div class="step-track">
+        <div class="step-dot done">&#10003;</div><div class="step-line"></div>
+        <div class="step-dot done">&#10003;</div><div class="step-line"></div>
+        <div class="step-dot active">3</div>
+      </div>
+
+      <h1>Đặt lại mật khẩu</h1>
+      <p class="desc">Tạo mật khẩu mới cho tài khoản của bạn.</p>
+
+      <form id="pwForm" novalidate>
+        <div class="field-block">
+          <label for="newPw">Mật khẩu mới</label>
+          <div class="pw-wrap">
+            <input type="password" id="newPw" placeholder="••••••••" autocomplete="new-password">
+            <button hidden type="button" class="toggle-pw" data-target="newPw">HIỆN</button>
+          </div>
+          <div class="strength-track"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-label" id="strengthLabel">Độ mạnh mật khẩu</div>
+        </div>
+
+        <div class="field-block">
+          <label for="confirmPw">Xác nhận mật khẩu</label>
+          <div class="pw-wrap">
+            <input type="password" id="confirmPw" placeholder="••••••••" autocomplete="new-password">
+            <button hidden type="button" class="toggle-pw" data-target="confirmPw">HIỆN</button>
+          </div>
+          <div class="err-msg" id="errMsg"></div>
+        </div>
+
+        <ul class="rules">
+          <li>Tối thiểu 8 ký tự</li>
+          <li>Có ít nhất 1 chữ hoa và 1 chữ số</li>
+          <li>Không trùng với mật khẩu cũ</li>
+        </ul>
+
+        <button type="submit" id="submitBtn">Đặt lại mật khẩu</button>
+      </form>
+    </div>
+
+    <div class="success-box" id="successView">
+      <div class="check">&#10003;</div>
+      <h1>Đặt lại mật khẩu thành công!</h1>
+      <p class="desc">Bạn có thể đăng nhập ngay bằng mật khẩu mới.</p>
+      <button type="button" onclick="window.location.href='#'">Về trang đăng nhập</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.target);
+      const showing = target.type === 'text';
+      target.type = showing ? 'password' : 'text';
+      btn.textContent = showing ? 'HIỆN' : 'ẨN';
+    });
+  });
+
+  const newPw = document.getElementById('newPw');
+  const confirmPw = document.getElementById('confirmPw');
+  const strengthFill = document.getElementById('strengthFill');
+  const strengthLabel = document.getElementById('strengthLabel');
+  const errMsg = document.getElementById('errMsg');
+
+  function scorePassword(pw){
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    return score;
+  }
+
+  newPw.addEventListener('input', () => {
+    const score = scorePassword(newPw.value);
+    const pct = Math.min(score / 5 * 100, 100);
+    strengthFill.style.width = pct + '%';
+    if (!newPw.value){
+      strengthFill.style.width = '0%';
+      strengthLabel.textContent = 'Độ mạnh mật khẩu';
+    } else if (score <= 2){
+      strengthFill.style.background = '#b3261e';
+      strengthLabel.textContent = 'Yếu';
+    } else if (score <= 3){
+      strengthFill.style.background = '#c98a1c';
+      strengthLabel.textContent = 'Trung bình';
+    } else {
+      strengthFill.style.background = '#1a8296';
+      strengthLabel.textContent = 'Mạnh';
+    }
+  });
+
+  const form = document.getElementById('pwForm');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pw = newPw.value;
+    const cpw = confirmPw.value;
+
+    if (pw.length < 8 || !/[A-Z]/.test(pw) || !/[0-9]/.test(pw)) {
+      errMsg.textContent = 'Mật khẩu chưa đủ mạnh theo yêu cầu.';
+      return;
+    }
+    if (pw !== cpw) {
+      errMsg.textContent = 'Mật khẩu xác nhận không khớp.';
+      return;
+    }
+    errMsg.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang xử lý...';
+
+    // TODO: Thay đoạn dưới bằng lời gọi API thật, ví dụ:
+    // fetch('/api/auth/reset-password', {
+    //   method: 'POST',
+    //   headers: {'Content-Type':'application/json'},
+    //   body: JSON.stringify({
+    //     email: sessionStorage.getItem('reset_email'),
+    //     otp: sessionStorage.getItem('reset_otp'),
+    //     newPassword: pw
+    //   })
+    // })
+    // .then(res => res.json())
+    // .then(data => {
+    //   if (data.success) { showSuccess(); }
+    //   else { errMsg.textContent = data.message || 'Có lỗi xảy ra.'; submitBtn.disabled=false; submitBtn.textContent='Đặt lại mật khẩu'; }
+    // });
+
+    setTimeout(() => {
+      sessionStorage.removeItem('reset_email');
+      sessionStorage.removeItem('reset_otp');
+      showSuccess();
+    }, 700);
+  });
+
+  function showSuccess(){
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('successView').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

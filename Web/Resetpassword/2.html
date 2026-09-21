@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhập mã OTP — NamHà Tech Club</title>
+<style>
+  :root{
+    --teal-900:#0a3f4a; --teal-800:#0d5566; --teal-700:#12697d;
+    --teal-600:#1a8296; --teal-400:#5cb3c2; --teal-100:#e4f2f4;
+    --paper:#f6f4ee; --ink:#0a3f4a; --line:rgba(10,63,74,0.18);
+    --error:#b3261e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--teal-100); color:var(--ink); font-family:Arial, Helvetica, sans-serif;
+    padding:24px 16px;
+  }
+  .circuit-bg{position:fixed; inset:0; z-index:0; opacity:0.35; pointer-events:none;}
+  .circuit-bg svg{width:100%; height:100%;}
+  .card{
+    position:relative; z-index:1; width:100%; max-width:420px;
+    background:var(--paper); border:2px solid var(--teal-800);
+    box-shadow:0 0 0 6px var(--paper), 0 0 0 8px var(--teal-600), 0 24px 60px -20px rgba(10,63,74,0.45);
+  }
+  .masthead{
+    background:var(--teal-800); color:var(--paper); padding:22px 28px;
+    display:flex; align-items:center; gap:12px; border-bottom:3px solid var(--teal-900);
+  }
+  .gear{width:34px; height:34px; flex-shrink:0; color:var(--teal-100);}
+  .brand-name{font-size:19px; font-weight:800; letter-spacing:0.5px;}
+  .brand-sub{font-size:10px; font-weight:700; letter-spacing:3px; color:var(--teal-100); opacity:0.9; margin-top:3px;}
+  .body-area{padding:34px 30px 30px;}
+  .step-track{display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:22px;}
+  .step-dot{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;}
+  .step-dot.done{background:var(--teal-600); color:var(--paper);}
+  .step-dot.active{background:var(--teal-700); color:var(--paper);}
+  .step-dot.pending{background:var(--teal-100); color:var(--teal-700); border:1px solid var(--line);}
+  .step-line{width:26px; height:2px; background:var(--line);}
+  h1{font-size:21px; margin:0 0 8px; color:var(--teal-800); text-align:center;}
+  p.desc{font-size:14px; line-height:1.6; color:var(--ink); opacity:0.85; text-align:center; margin:0 0 8px;}
+  p.email-shown{font-size:14px; font-weight:700; color:var(--teal-700); text-align:center; margin:0 0 26px;}
+  .otp-row{display:flex; gap:8px; justify-content:center; margin-bottom:8px;}
+  .otp-row input{
+    width:44px; height:52px; text-align:center; font-size:22px; font-weight:800;
+    border:2px solid var(--teal-600); background:var(--paper); color:var(--ink); font-family:inherit;
+  }
+  .otp-row input:focus{outline:3px solid var(--teal-400); outline-offset:1px;}
+  .err-msg{font-size:12.5px; color:var(--error); min-height:16px; text-align:center; margin-bottom:14px;}
+  .timer{font-size:13px; text-align:center; color:var(--ink); opacity:0.75; margin-bottom:22px;}
+  .timer #resendLink{color:var(--teal-700); font-weight:700; text-decoration:none; cursor:pointer;}
+  .timer #resendLink.disabled{color:var(--line); pointer-events:none;}
+  button{
+    width:100%; padding:13px; font-size:15px; font-weight:700; font-family:inherit;
+    background:var(--teal-700); color:var(--paper); border:2px solid var(--teal-700); cursor:pointer; letter-spacing:0.3px;
+  }
+  button:hover{background:var(--teal-800); border-color:var(--teal-800);}
+  button:disabled{opacity:0.6; cursor:not-allowed;}
+  .back-link{display:block; text-align:center; margin-top:18px; font-size:13px; color:var(--teal-700); text-decoration:none; font-weight:700;}
+  .back-link:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="circuit-bg" aria-hidden="true">
+  <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#1a8296" stroke-width="1.4" fill="none" opacity="0.4">
+      <path d="M0 80 H160 V40 H320"/>
+      <path d="M800 420 H700 V380 H560 V440 H420"/>
+      <path d="M40 520 H180 V480 H300 V560"/>
+    </g>
+    <g fill="#1a8296" opacity="0.55">
+      <circle cx="160" cy="80" r="4"/><circle cx="320" cy="40" r="4"/>
+      <circle cx="700" cy="420" r="4"/><circle cx="420" cy="440" r="4"/>
+      <circle cx="180" cy="520" r="4"/><circle cx="300" cy="560" r="4"/>
+    </g>
+  </svg>
+</div>
+
+<div class="card">
+  <div class="masthead">
+    <svg class="gear" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="10 8"/>
+      <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="8"/>
+    </svg>
+    <div>
+      <div class="brand-name">NamHà Tech Club</div>
+      <div class="brand-sub">CÂU LẠC BỘ CÔNG NGHỆ</div>
+    </div>
+  </div>
+
+  <div class="body-area">
+    <div class="step-track">
+      <div class="step-dot done">&#10003;</div><div class="step-line"></div>
+      <div class="step-dot active">2</div><div class="step-line"></div>
+      <div class="step-dot pending">3</div>
+    </div>
+
+    <h1>Xác thực OTP</h1>
+    <p class="desc">Nhập mã 6 số vừa được gửi đến</p>
+    <p class="email-shown" id="emailShown">email của bạn</p>
+
+    <form id="otpForm" novalidate>
+      <div class="otp-row">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-index="0">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-index="1">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-index="2">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-index="3">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-index="4">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box" data-index="5">
+      </div>
+      <div class="err-msg" id="errMsg"></div>
+      <div class="timer" id="timerBox">Mã hết hạn sau <span id="countdown">05:00</span> &middot; <a id="resendLink" class="disabled">Gửi lại mã</a></div>
+      <button type="submit" id="submitBtn">Xác nhận</button>
+    </form>
+
+    <a class="back-link" href="1-nhap-email.html">&larr; Đổi email khác</a>
+  </div>
+</div>
+
+<script>
+  const emailShown = document.getElementById('emailShown');
+  const storedEmail = sessionStorage.getItem('reset_email');
+  if (storedEmail) {
+    const [user, domain] = storedEmail.split('@');
+    const masked = user.length > 2
+      ? user.slice(0,2) + '***' + '@' + domain
+      : user[0] + '***@' + domain;
+    emailShown.textContent = masked;
+  }
+
+  const boxes = Array.from(document.querySelectorAll('.otp-box'));
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', () => {
+      box.value = box.value.replace(/[^0-9]/g, '');
+      if (box.value && i < boxes.length - 1) boxes[i+1].focus();
+    });
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !box.value && i > 0) boxes[i-1].focus();
+    });
+    box.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+      paste.split('').forEach((ch, idx) => { if (boxes[idx]) boxes[idx].value = ch; });
+      const next = Math.min(paste.length, boxes.length - 1);
+      boxes[next].focus();
+    });
+  });
+
+  // Countdown
+  let seconds = 300;
+  const countdownEl = document.getElementById('countdown');
+  const resendLink = document.getElementById('resendLink');
+  const timer = setInterval(() => {
+    seconds--;
+    const m = String(Math.floor(seconds/60)).padStart(2,'0');
+    const s = String(seconds%60).padStart(2,'0');
+    countdownEl.textContent = m + ':' + s;
+    if (seconds <= 0) {
+      clearInterval(timer);
+      countdownEl.textContent = '00:00';
+      resendLink.classList.remove('disabled');
+    }
+  }, 1000);
+
+  resendLink.addEventListener('click', () => {
+    if (resendLink.classList.contains('disabled')) return;
+    // TODO: gọi lại API gửi OTP tại đây
+    // fetch('/api/auth/send-otp', {...})
+    seconds = 300;
+    resendLink.classList.add('disabled');
+  });
+
+  const form = document.getElementById('otpForm');
+  const errMsg = document.getElementById('errMsg');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const code = boxes.map(b => b.value).join('');
+    if (code.length < 6) {
+      errMsg.textContent = 'Vui lòng nhập đủ 6 số.';
+      return;
+    }
+    errMsg.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang xác thực...';
+
+    // TODO: Thay đoạn dưới bằng lời gọi API thật, ví dụ:
+    // fetch('/api/auth/verify-otp', {
+    //   method: 'POST',
+    //   headers: {'Content-Type':'application/json'},
+    //   body: JSON.stringify({ email: storedEmail, otp: code })
+    // })
+    // .then(res => res.json())
+    // .then(data => {
+    //   if (data.success) { window.location.href = '3-dat-lai-mat-khau.html'; }
+    //   else { errMsg.textContent = 'Mã OTP không đúng.'; submitBtn.disabled=false; submitBtn.textContent='Xác nhận'; }
+    // });
+
+    sessionStorage.setItem('reset_otp', code);
+    setTimeout(() => {
+      window.location.href = '3-dat-lai-mat-khau.html';
+    }, 700);
+  });
+
+  boxes[0].focus();
+</script>
+
+</body>
+</html>
