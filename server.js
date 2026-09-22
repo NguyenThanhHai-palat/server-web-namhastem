@@ -654,14 +654,14 @@ app.post("/service/user/verify-reset", async (req, res) => {
 });
 
 app.post('/api/send-email', async (req, res) => {
-    try {
+    try {/*
         const now = new Date();
         if (now < TIME_START || now >= TIME_END) {
             return res.status(403).json({
                 success: false,
                 message: "Time expired !"
             });
-        }
+        }*/
 
         const { to, subject, text, html } = req.body;
         if (!to || !subject) {
