@@ -827,7 +827,7 @@ app.get("/login.html", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
 } )
 app.get("/dang-nhap", (req, res) => {
-  res.sendFile(path.join(__dirname, "Web","chuamodichvu.html"));
+  res.sendFile(path.join(__dirname, "Web","Webbuild","kaiadmin-lite-1.2.0","login.html"));
 } )
 app.get("/thanh-vien-moi", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
