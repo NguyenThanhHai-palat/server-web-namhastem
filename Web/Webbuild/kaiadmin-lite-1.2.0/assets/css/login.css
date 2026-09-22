@@ -243,13 +243,19 @@ textarea {
   text-align: center;
   color: var(--muted);
   z-index: 1;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.input-with-icon:focus-within i {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .input-with-icon input {
   width: 100%;
   border: none;
   background: transparent;
-  padding: 12px 14px 12px 40px;
+  padding: 12px 14px 12px 60px;
   border-radius: 10px;
 }
 
@@ -552,7 +558,7 @@ header {
 }
 
 .auth-form .input-group.has-icon input {
-    padding-left: 42px;
+    padding-left: 92px;
 }
 
 .auth-form .radio-group {

@@ -1,0 +1,352 @@
+/* =========================================
+   1. VARIABLES & THEMES
+   ========================================= */
+:root {
+  --teal-900: #ffffff;
+  --teal-800: #0d5566;
+  --teal-700: #0d5566;
+  --teal-600: #1a8296;
+  --teal-400: #5cb3c2;
+  --teal-100: #f2f6f7;
+  --paper: #f6f4ee;
+  --ink: #fffcfc;
+  --line: rgba(10, 63, 74, 0.18);
+  --error: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #fff;
+    --ink: #eaf6f8;
+    --line: rgba(234, 246, 248, 0.18);
+    --teal-100: #75d4ee;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #fff;
+  --ink: #eaf6f8;
+  --line: rgba(234, 246, 248, 0.18);
+  --teal-100: #75d4ee;
+}
+
+/* =========================================
+   2. RESET & BASE LAYOUT
+   ========================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--teal-100);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 24px 16px;
+}
+
+/* =========================================
+   3. BACKGROUND & CARD CONTAINER
+   ========================================= */
+.circuit-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.circuit-bg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: var(--paper);
+  border: 2px solid var(--teal-800);
+  box-shadow: 0 0 0 6px var(--paper), 0 0 0 8px var(--teal-600),
+    0 24px 60px -20px rgba(10, 63, 74, 0.45);
+}
+
+.masthead {
+  background: var(--teal-800);
+  color: var(--paper);
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 3px solid var(--teal-900);
+}
+
+.body-area {
+  padding: 34px 30px 30px;
+}
+
+/* =========================================
+   4. TYPOGRAPHY
+   ========================================= */
+h1 {
+  font-size: 21px;
+  margin: 0 0 8px;
+  color: var(--teal-800);
+  text-align: center;
+}
+
+p.desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  opacity: 0.85;
+  text-align: center;
+  margin: 0 0 26px;
+}
+
+p.email-shown {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal-700);
+  text-align: center;
+  margin: -18px 0 26px; /* Điều chỉnh khoảng cách cho trang OTP */
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal-900);
+  margin-bottom: 8px;
+}
+
+.err-msg {
+  font-size: 12.5px;
+  color: var(--error);
+  min-height: 16px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+ul.rules {
+  font-size: 12.5px;
+  color: var(--ink);
+  opacity: 0.8;
+  margin: 0 0 22px;
+  padding-left: 18px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   5. STEPPER (PROGRESS TRACK)
+   ========================================= */
+.step-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+
+.step-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.step-dot.done { background: var(--teal-600); color: var(--paper); }
+.step-dot.active { background: var(--teal-700); color: var(--paper); }
+.step-dot.pending { background: var(--teal-100); color: var(--teal-700); border: 1px solid var(--line); }
+
+.step-line {
+  width: 26px;
+  height: 2px;
+  background: var(--line);
+}
+
+/* =========================================
+   6. FORMS & INPUTS
+   ========================================= */
+.field-block {
+  margin-bottom: 18px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"]:not(.otp-box) {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 2px solid var(--teal-600);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  margin-bottom: 6px;
+}
+
+/* Padding riêng cho input có nút Hiện/Ẩn mật khẩu */
+.pw-wrap input[type="password"],
+.pw-wrap input[type="text"] {
+  padding-right: 44px;
+}
+
+input:focus {
+  outline: 3px solid var(--teal-400);
+  outline-offset: 1px;
+}
+
+/* Ô nhập OTP */
+.otp-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.otp-box {
+  width: 44px;
+  height: 52px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  border: 2px solid var(--teal-600);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+}
+
+/* Toggle ẩn/hiện mật khẩu */
+.pw-wrap {
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.toggle-pw {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  width: auto;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--teal-700);
+}
+
+/* =========================================
+   7. BUTTONS & LINKS
+   ========================================= */
+button:not(.toggle-pw) {
+  width: 100%;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--teal-700);
+  color: var(--paper);
+  border: 2px solid var(--teal-700);
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+button:not(.toggle-pw):hover {
+  background: var(--teal-800);
+  border-color: var(--teal-800);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--teal-700);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   8. SPECIFIC COMPONENTS (OTP Timer, PW Strength, Success)
+   ========================================= */
+.timer {
+  font-size: 13px;
+  text-align: center;
+  color: var(--ink);
+  opacity: 0.75;
+  margin-bottom: 22px;
+}
+
+.timer #resendLink {
+  color: var(--teal-700);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.timer #resendLink.disabled {
+  color: var(--line);
+  pointer-events: none;
+}
+
+.strength-track {
+  height: 6px;
+  background: var(--teal-100);
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--error);
+  transition: width 0.2s, background 0.2s;
+}
+
+.strength-label {
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.75;
+  margin-bottom: 18px;
+}
+
+.success-box {
+  display: none;
+  text-align: center;
+}
+
+.success-box .check {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--teal-700);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 18px;
+}
+
+.success-box h1 { margin-bottom: 10px; }
+.success-box p.desc { margin-bottom: 26px; }
