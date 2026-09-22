@@ -348,6 +348,41 @@ app.post("/tiendotaodao/edit", (req, res) => {
     res.status(500).json({ message: "Lỗi server" });
   }
 });
+app.post("/giaotrinh/add", (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "Data", "giaotrinh.json");
+
+    const {ten_chu_de,noidung,thoigianbatdau,thoigianketthuc,sotinchi,yeucau,yeucauchudetruoc,id_phan} = req.body;
+    if (!ten_chu_de || !noidung || !thoigianbatdau || !thoigianketthuc || !sotinchi || !yeucau || !yeucauchudetruoc || !id_phan) {
+      return res.status(400).json({
+        message: "Thiếu dữ liệu"
+      });
+    }
+    let data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    if (!Array.isArray(data.data_exam)) {
+      data.data_exam = [];
+    }
+    const newExam = {ten_chu_de,noidung,thoigianbatdau,thoigianketthuc,sotinchi,yeucau,yeucauchudetruoc,id_phan};
+    data.data_exam.unshift(newExam);
+    fs.writeFileSync(
+      filePath,
+      JSON.stringify(data, null, 2),
+      "utf8"
+    );
+
+    res.status(201).json({
+      message: "Thêm bài học phần thành công",
+      exam: newExam
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Lỗi server"
+    });
+  }
+});
  app.post("/tiendotaodao/refresh-thanhvien", (req, res) => {
   const decoded = requireAuth(req, res);
   if (!decoded) return;
