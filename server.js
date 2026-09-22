@@ -481,9 +481,10 @@ app.post("/service/user/forgot-password", async (req, res) => {
             resetFile,
             JSON.stringify(resetData, null, 2),
             "utf8"
-        );
-        await sendEmail(user.email, "Mã xác nhận đặt lại mật khẩu", `Mã xác nhận của bạn là: ${otp}\n\n` + `Mã có hiệu lực trong 5 phút.\n` + `Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.`, null);
-        return res.json({
+        );try {await sendEmail(user.email, "Mã xác nhận đặt lại mật khẩu", `Mã xác nhận của bạn là: ${otp}\n\n` + `Mã có hiệu lực trong 5 phút.\n` + `Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.`, null);
+       }
+        catch (err) {  console.error("Gửi OTP thất bại:", err); }
+         return res.json({
             message: "Nếu tài khoản tồn tại, mã xác nhận đã được gửi"
         });
 
