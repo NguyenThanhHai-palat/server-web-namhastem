@@ -6,18 +6,18 @@
 <title>Nhập mã OTP — NamHà Tech Club</title>
 <style>
   :root{
-    --teal-900:#0a3f4a; --teal-800:#0d5566; --teal-700:#12697d;
-    --teal-600:#1a8296; --teal-400:#5cb3c2; --teal-100:#e4f2f4;
-    --paper:#f6f4ee; --ink:#0a3f4a; --line:rgba(10,63,74,0.18);
+    --teal-900:#ffffff; --teal-800:#0d5566; --teal-700:#0d5566;
+    --teal-600:#1a8296; --teal-400:#5cb3c2; --teal-100:#f2f6f7;
+    --paper:#f6f4ee; --ink:#fffcfc; --line:rgba(10,63,74,0.18);
     --error:#b3261e;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+      --paper:#fff --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#75d4ee
     }
   }
   :root[data-theme="dark"]{
-    --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+    --paper:#fff --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#75d4ee
   }
   *{box-sizing:border-box;}
   body{
@@ -88,14 +88,7 @@
 
 <div class="card">
   <div class="masthead">
-    <svg class="gear" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="10 8"/>
-      <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="8"/>
-    </svg>
-    <div>
-      <div class="brand-name">NamHà Tech Club</div>
-      <div class="brand-sub">CÂU LẠC BỘ CÔNG NGHỆ</div>
-    </div>
+     <img src="https://namha-tech.io.vn/assets/img/kaiadmin/logo_light.svg" alt="NamHà Tech Club" width="100%" style="display:block; border:0;">
   </div>
 
   <div class="body-area">
@@ -123,13 +116,20 @@
       <button type="submit" id="submitBtn">Xác nhận</button>
     </form>
 
-    <a class="back-link" href="1-nhap-email.html">&larr; Đổi email khác</a>
+    <a class="back-link" href="1.html">&larr; Đổi email khác</a>
   </div>
 </div>
 
 <script>
+  const API_BASE = "https://namha-tech.io.vn"; // đổi nếu domain khác
+
   const emailShown = document.getElementById('emailShown');
   const storedEmail = sessionStorage.getItem('reset_email');
+  const storedService = sessionStorage.getItem('reset_service');
+
+  if (!storedEmail || !storedService) {
+    window.location.href = '/resetpassword/';
+  }
   if (storedEmail) {
     const [user, domain] = storedEmail.split('@');
     const masked = user.length > 2
@@ -174,10 +174,15 @@
 
   resendLink.addEventListener('click', () => {
     if (resendLink.classList.contains('disabled')) return;
-    // TODO: gọi lại API gửi OTP tại đây
-    // fetch('/api/auth/send-otp', {...})
-    seconds = 300;
     resendLink.classList.add('disabled');
+    fetch(`${API_BASE}/service/user/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: storedEmail, service: storedService })
+    })
+    .catch(() => { errMsg.textContent = 'Không gửi lại được mã, thử lại sau.'; });
+
+    seconds = 300;
   });
 
   const form = document.getElementById('otpForm');
@@ -195,22 +200,27 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Đang xác thực...';
 
-    // TODO: Thay đoạn dưới bằng lời gọi API thật, ví dụ:
-    // fetch('/api/auth/verify-otp', {
-    //   method: 'POST',
-    //   headers: {'Content-Type':'application/json'},
-    //   body: JSON.stringify({ email: storedEmail, otp: code })
-    // })
-    // .then(res => res.json())
-    // .then(data => {
-    //   if (data.success) { window.location.href = '3-dat-lai-mat-khau.html'; }
-    //   else { errMsg.textContent = 'Mã OTP không đúng.'; submitBtn.disabled=false; submitBtn.textContent='Xác nhận'; }
-    // });
-
-    sessionStorage.setItem('reset_otp', code);
-    setTimeout(() => {
-      window.location.href = '3-dat-lai-mat-khau.html';
-    }, 700);
+    fetch(`${API_BASE}/service/user/verify-reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: storedEmail, service: storedService, otp: code })
+    })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+      if (ok && data.resetToken) {
+        sessionStorage.setItem('reset_token', data.resetToken);
+        window.location.href = '3.html';
+      } else {
+        errMsg.textContent = data.message || 'Mã OTP không đúng.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Xác nhận';
+      }
+    })
+    .catch(() => {
+      errMsg.textContent = 'Có lỗi xảy ra, thử lại sau.';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Xác nhận';
+    });
   });
 
   boxes[0].focus();

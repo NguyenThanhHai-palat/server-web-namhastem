@@ -169,6 +169,251 @@ app.get("/service/user/checking", (req, res) => {
     res.status(401).json({ message: "Token has expired." });
   }
 }); // E419CD : PALATSEVICE
+app.get("/service/admin/checking", (req, res) => {
+    const filePathx = path.join(
+        __dirname,
+        "account-service",
+        "user.json"
+    );
+  const filePath2 = path.join(
+    __dirname,
+    "account-service",
+    "admin.json"
+  );
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ message: "Chưa đăng nhập" });
+  const token = auth.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, KEY_VALUE_ACCOUNT);
+    const users = JSON.parse(fs.readFileSync(filePathx));
+    const user = users.find(u => u.id === decoded.id);
+    const admin = JSON.parse(fs.readFileSync(filePath2));
+    const adminUser = admin.find(a => a.id === user.id);
+    if(user.id == adminUser.id){
+
+        return res.json({ a: 1 });
+    }
+    else{
+        return res.json({ a: 0 });
+    }
+  } catch (err) {
+    res.status(401).json({ message: "Token has expired." });
+  }
+});
+
+app.get("/service/admin/getlist", (req, res) => {
+    const filePathx = path.join(
+        __dirname,
+        "account-service",
+        "user.json"
+    );
+  const filePath2 = path.join(
+    __dirname,
+    "account-service",
+    "admin.json"
+  );
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ message: "Chưa đăng nhập" });
+  const token = auth.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, KEY_VALUE_ACCOUNT);
+    const users = JSON.parse(fs.readFileSync(filePathx));
+    const user = users.find(u => u.id === decoded.id);
+    const admin = JSON.parse(fs.readFileSync(filePath2));
+    const adminUser = admin.find(a => a.id === user.id);
+    if(user.id == adminUser.id){
+
+        return res.json(users);
+    }
+    else{
+        return res.json({ a: 0 });
+    }
+  } catch (err) {
+    res.status(401).json({ message: "Token has expired." });
+  }
+});
+
+const FILE_THANHVIEN = path.join(__dirname, "account-service", "user.json"); 
+ 
+function isAdmin(decodedId) {
+  const filePath2 = path.join(__dirname, "account-service", "admin.json");
+  const admin = JSON.parse(fs.readFileSync(filePath2));
+  return admin.some((a) => a.id === decodedId);
+}
+
+function requireAuth(req, res) {
+  const auth = req.headers.authorization;
+  if (!auth) {
+    res.status(401).json({ message: "Chưa đăng nhập" });
+    return null;
+  }
+  const token = auth.split(" ")[1];
+  try {
+    return jwt.verify(token, KEY_VALUE_ACCOUNT);
+  } catch (err) {
+    res.status(401).json({ message: "Token has expired." });
+    return null;
+  }
+}
+
+app.get("/tiendotaodao/thanhvien", (req, res) => {
+  const decoded = requireAuth(req, res);
+  if (!decoded) return;
+  if (!isAdmin(decoded.id)) return res.json({ a: 0 });
+ 
+  try {
+    const list = JSON.parse(fs.readFileSync(FILE_THANHVIEN, "utf8"));
+
+    const rs = list.map((a) => ({
+      id: a.id,
+      ten: a.ten || a.hoten || a.name || a.username,
+    }));
+    res.json(rs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server (kiểm tra đường dẫn user.json)" });
+  }
+});
+app.post("/tiendotaodao/sync-user", (req, res) => {
+  const decoded = requireAuth(req, res);
+  if (!decoded) return;
+  if (!isAdmin(decoded.id)) return res.json({ a: 0 });
+ 
+  const { id, ten } = req.body;
+  if (!id) return res.status(400).json({ message: "Thiếu id" });
+ 
+  const filePath = path.join(__dirname, "Data", "tiendotaodao.json");
+  try {
+    let data = fs.existsSync(filePath)
+      ? JSON.parse(fs.readFileSync(filePath, "utf8"))
+      : [];
+    if (!Array.isArray(data)) data = [];
+ 
+    let user = data.find((u) => u.id === id);
+    if (!user) {
+      user = { id, ten: ten || "", chude: [] };
+      data.push(user);
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+      return res.status(201).json({ message: "Đã thêm user mới", user });
+    }
+    return res.json({ message: "User đã tồn tại", user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+app.post("/tiendotaodao/edit", (req, res) => {
+  const decoded = requireAuth(req, res);
+  if (!decoded) return;
+  if (!isAdmin(decoded.id)) return res.json({ a: 0 });
+ 
+  const { id, id_phan, trangthai, thanhtich } = req.body;
+  const TRANGTHAI_HOPLE = ["hoàn thành", "nợ", "rớt", "chưa hoàn thành"];
+ 
+  if (!id || !id_phan || !trangthai) {
+    return res.status(400).json({ message: "Thiếu dữ liệu (id, id_phan, trangthai)" });
+  }
+  if (!TRANGTHAI_HOPLE.includes(trangthai)) {
+    return res.status(400).json({
+      message: "trangthai không hợp lệ. Chỉ nhận: " + TRANGTHAI_HOPLE.join(", "),
+    });
+  }
+ 
+  const filePath = path.join(__dirname, "Data", "tiendotaodao.json");
+  try {
+    let data = fs.existsSync(filePath)
+      ? JSON.parse(fs.readFileSync(filePath, "utf8"))
+      : [];
+    if (!Array.isArray(data)) data = [];
+ 
+    let user = data.find((u) => u.id === id);
+    if (!user) {
+      user = { id, ten: req.body.ten || "", chude: [] };
+      data.push(user);
+    }
+ 
+    let chude = user.chude.find((c) => c.id_phan === id_phan);
+    if (!chude) {
+      chude = { id_phan, trangthai, thanhtich: thanhtich || "" };
+      user.chude.push(chude);
+    } else {
+      chude.trangthai = trangthai;
+      if (typeof thanhtich === "string") chude.thanhtich = thanhtich;
+    }
+ 
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+    return res.json({ message: "Cập nhật thành công", user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+ app.post("/tiendotaodao/refresh-thanhvien", (req, res) => {
+  const decoded = requireAuth(req, res);
+  if (!decoded) return;
+  if (!isAdmin(decoded.id)) return res.json({ a: 0 });
+ 
+  const filePath = path.join(__dirname, "Data", "tiendotaodao.json");
+  try {
+    const users = JSON.parse(fs.readFileSync(FILE_THANHVIEN, "utf8"));
+    let data = fs.existsSync(filePath)
+      ? JSON.parse(fs.readFileSync(filePath, "utf8"))
+      : [];
+    if (!Array.isArray(data)) data = [];
+ 
+    let themmoi = 0;
+    users.forEach((u) => {
+      const ten = u.ten || u.hoten || u.name || u.username || "";
+      const existing = data.find((d) => d.id === u.id);
+      if (!existing) {
+        data.push({ id: u.id, ten, chude: [] });
+        themmoi++;
+      } else if (!existing.ten && ten) {
+        existing.ten = ten; // cập nhật tên nếu trước đó chưa có
+      }
+    });
+ 
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+    res.json({ message: `Đã đồng bộ. Thêm mới ${themmoi} user.`, total: data.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
+app.get("/service/clb/get-giaotrinh:name", (req, res) => {
+  const name = req.params.name;
+  const filePathx = path.join(__dirname, "Data", "giaotrinh.json");
+  const filePathx2 = path.join(__dirname, "Data", "tiendotaodao.json");
+
+  const decoded = requireAuth(req, res);
+  if (!decoded) return;
+
+  try {
+    if (name === "giaotrinh") {
+      const giaotrinh = JSON.parse(fs.readFileSync(filePathx));
+      return res.json(giaotrinh);
+    }
+    if (name === "tiendotaodao") {
+      if (!isAdmin(decoded.id)) return res.json({ a: 0 });
+      const tiendotaodao = fs.existsSync(filePathx2)
+        ? JSON.parse(fs.readFileSync(filePathx2))
+        : [];
+      return res.json(tiendotaodao);
+    }
+    if (name === "giaotrinh-user") {
+      const tiendotaodao = fs.existsSync(filePathx2)
+        ? JSON.parse(fs.readFileSync(filePathx2))
+        : [];
+      const tiendotaodaoUser = tiendotaodao.find((t) => t.id === decoded.id);
+      return res.json(tiendotaodaoUser || { chude: [] });
+    }
+    return res.json({ a: 0 });
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ message: "Token has expired." });
+  }
+});
 
 app.post("/service/user/forgot-password", async (req, res) => {
     try {
@@ -184,7 +429,7 @@ app.post("/service/user/forgot-password", async (req, res) => {
             "account-service",
             "user.json"
         );
-        const resetFile = userFile
+        const resetFile = path.join(__dirname, "account-service", "reset.json");
         const userData = await fs.promises.readFile(
             userFile,
             "utf8"
@@ -238,7 +483,7 @@ app.post("/service/user/forgot-password", async (req, res) => {
             "utf8"
         );
         await smtpTransporter.sendMail({
-            from: process.env.SMTP_USER,
+            from: `"Nam Ha Tech Support" <service@namha-tech.io.vn>`,
             to: user.email,
             subject: "Mã xác nhận đặt lại mật khẩu",
             text:
@@ -417,28 +662,35 @@ app.post("/service/user/verify-reset", async (req, res) => {
 
 app.post('/api/send-email', async (req, res) => {
     try {
+        const now = new Date();
+        if (now < TIME_START || now >= TIME_END) {
+            return res.status(403).json({
+                success: false,
+                message: "Time expired !"
+            });
+        }
+
         const { to, subject, text, html } = req.body;
         if (!to || !subject) {
             return res.status(400).json({ 
                 success: false, 
-                message: "Thiếu thông tin bắt buộc: 'to' (người nhận) hoặc 'subject' (tiêu đề)!" 
+                message: "Thiếu to & subject" 
             });
         }
         await sendEmail(to, subject, text || "", html || "");
         return res.status(200).json({ 
             success: true, 
-            message: "Email đã được gửi thành công!" 
+            message: "Done" 
         });
 
     } catch (error) {
         return res.status(500).json({ 
-            success: false, 
-            message: "Không thể gửi email do lỗi hệ thống.", 
+            success: false,     
+            message:"Lỗi", 
             error: error.message 
         });
     }
 });
-
 
 app.post("/service/user/reset-password", async (req, res) => {
     try {
@@ -587,6 +839,15 @@ app.get("/dang-nhap", (req, res) => {
 } )
 app.get("/thanh-vien-moi", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","dang-ky-clb.html"));
+} )
+app.get("/resetpassword", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","Resetpassword","1.html"));
+} )
+app.get("/resetpassword/step-2", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","Resetpassword","2.html"));
+} )
+app.get("/resetpassword/step-3", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","Resetpassword","3.html"));
 } )
 app.use('/assets', express.static(path.join(__dirname, "Web","Webbuild","kaiadmin-lite-1.2.0","assets")));
 app.listen(port, () => {

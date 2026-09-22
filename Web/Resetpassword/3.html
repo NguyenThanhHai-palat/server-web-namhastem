@@ -6,18 +6,18 @@
 <title>Đặt lại mật khẩu — NamHà Tech Club</title>
 <style>
   :root{
-    --teal-900:#0a3f4a; --teal-800:#0d5566; --teal-700:#12697d;
-    --teal-600:#1a8296; --teal-400:#5cb3c2; --teal-100:#e4f2f4;
-    --paper:#f6f4ee; --ink:#0a3f4a; --line:rgba(10,63,74,0.18);
-    --error:#b3261e; --good:#1a8296;
+    --teal-900:#ffffff; --teal-800:#0d5566; --teal-700:#0d5566;
+    --teal-600:#1a8296; --teal-400:#5cb3c2; --teal-100:#f2f6f7;
+    --paper:#f6f4ee; --ink:#fffcfc; --line:rgba(10,63,74,0.18);
+    --error:#b3261e;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+      --paper:#fff --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#75d4ee
     }
   }
   :root[data-theme="dark"]{
-    --paper:#0a2229; --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#0f3742;
+    --paper:#fff --ink:#eaf6f8; --line:rgba(234,246,248,0.18); --teal-100:#75d4ee
   }
   *{box-sizing:border-box;}
   body{
@@ -47,7 +47,7 @@
   .step-line{width:26px; height:2px; background:var(--line);}
   h1{font-size:21px; margin:0 0 8px; color:var(--teal-800); text-align:center;}
   p.desc{font-size:14px; line-height:1.6; color:var(--ink); opacity:0.85; text-align:center; margin:0 0 26px;}
-  label{display:block; font-size:13px; font-weight:700; color:var(--teal-700); margin-bottom:8px;}
+  label{display:block; font-size:13px; font-weight:700; color:var(--teal-900); margin-bottom:8px;}
   .pw-wrap{position:relative; margin-bottom:6px;}
   input[type=password], input[type=text].pw-field{
     width:100%; padding:12px 44px 12px 14px; font-size:15px; border:2px solid var(--teal-600);
@@ -98,15 +98,8 @@
 </div>
 
 <div class="card">
-  <div class="masthead">
-    <svg class="gear" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="8" stroke-dasharray="10 8"/>
-      <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="8"/>
-    </svg>
-    <div>
-      <div class="brand-name">NamHà Tech Club</div>
-      <div class="brand-sub">CÂU LẠC BỘ CÔNG NGHỆ</div>
-    </div>
+ <div class="masthead">
+     <img src="https://namha-tech.io.vn/assets/img/kaiadmin/logo_light.svg" alt="NamHà Tech Club" width="100%" style="display:block; border:0;">
   </div>
 
   <div class="body-area">
@@ -162,6 +155,15 @@
 </div>
 
 <script>
+  const API_BASE = "https://namha-tech.io.vn"; // đổi nếu domain khác
+  const storedEmail = sessionStorage.getItem('reset_email');
+  const storedService = sessionStorage.getItem('reset_service');
+  const storedToken = sessionStorage.getItem('reset_token');
+
+  if (!storedEmail || !storedService || !storedToken) {
+    window.location.href = '1';
+  }
+
   document.querySelectorAll('.toggle-pw').forEach(btn => {
     btn.addEventListener('click', () => {
       const target = document.getElementById(btn.dataset.target);
@@ -226,27 +228,34 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Đang xử lý...';
 
-    // TODO: Thay đoạn dưới bằng lời gọi API thật, ví dụ:
-    // fetch('/api/auth/reset-password', {
-    //   method: 'POST',
-    //   headers: {'Content-Type':'application/json'},
-    //   body: JSON.stringify({
-    //     email: sessionStorage.getItem('reset_email'),
-    //     otp: sessionStorage.getItem('reset_otp'),
-    //     newPassword: pw
-    //   })
-    // })
-    // .then(res => res.json())
-    // .then(data => {
-    //   if (data.success) { showSuccess(); }
-    //   else { errMsg.textContent = data.message || 'Có lỗi xảy ra.'; submitBtn.disabled=false; submitBtn.textContent='Đặt lại mật khẩu'; }
-    // });
-
-    setTimeout(() => {
-      sessionStorage.removeItem('reset_email');
-      sessionStorage.removeItem('reset_otp');
-      showSuccess();
-    }, 700);
+    fetch(`${API_BASE}/service/user/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: storedEmail,
+        service: storedService,
+        resetToken: storedToken,
+        newPassword: pw
+      })
+    })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+      if (ok) {
+        sessionStorage.removeItem('reset_email');
+        sessionStorage.removeItem('reset_service');
+        sessionStorage.removeItem('reset_token');
+        showSuccess();
+      } else {
+        errMsg.textContent = data.message || 'Có lỗi xảy ra.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Đặt lại mật khẩu';
+      }
+    })
+    .catch(() => {
+      errMsg.textContent = 'Có lỗi xảy ra, thử lại sau.';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Đặt lại mật khẩu';
+    });
   });
 
   function showSuccess(){
