@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gửi email chào mừng thành viên – CLB Khám phá Công nghệ Nam Hà</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-900: #0a3f4a;
+    --teal-800: #0d5566;
+    --teal-600: #12697d;
+    --teal-300: #5cb3c2;
+    --teal-100: #cfe6ea;
+    --teal-50: #e4f2f4;
+    --paper: #f6f4ee;
+    --danger: #a12b2b;
+    --ok: #1b6b3a;
+    font-family: "Be Vietnam Pro", Arial, Helvetica, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--teal-50); }
+  body {
+    margin: 0;
+    color: var(--teal-900);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .topbar {
+    background: var(--teal-800);
+    border-bottom: 3px solid var(--teal-900);
+    color: var(--paper);
+    padding: 18px 24px;
+  }
+  .topbar h1 { margin: 0; font-size: 20px; font-weight: 700; }
+  .topbar p { margin: 2px 0 0; font-size: 13px; color: var(--teal-100); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 440px) 1fr;
+    gap: 24px;
+    max-width: 1180px;
+    margin: 24px auto;
+    padding: 0 24px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; padding: 0 14px; }
+  }
+
+  .panel {
+    background: var(--paper);
+    border: 2px solid var(--teal-800);
+  }
+  .panel-head {
+    padding: 12px 20px;
+    border-bottom: 2px solid var(--teal-800);
+    font-weight: 600;
+    color: var(--teal-800);
+  }
+
+  form { padding: 20px; display: grid; gap: 16px; }
+  .field { display: grid; gap: 6px; }
+  label, .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teal-600);
+  }
+  .hint { font-size: 12px; color: var(--teal-600); font-weight: 400; }
+
+  input, select {
+    width: 100%;
+    font: inherit;
+    color: var(--teal-900);
+    background: #fff;
+    border: 1px solid var(--teal-300);
+    border-radius: 0;
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+  input::placeholder { color: #8fb7bf; }
+  input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--teal-600);
+    outline-offset: 1px;
+  }
+  input[aria-invalid="true"] { border-color: var(--danger); }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
+
+  .divider { border: 0; border-top: 2px dashed var(--teal-300); margin: 4px 0; }
+
+  details {
+    border: 1px dashed var(--teal-300);
+    background: var(--teal-50);
+    padding: 10px 14px;
+  }
+  summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--teal-600); }
+  details .field { margin-top: 12px; }
+
+  button.send {
+    font: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--paper);
+    background: var(--teal-600);
+    border: 2px solid var(--teal-600);
+    border-radius: 0;
+    padding: 12px 24px;
+    min-height: 48px;
+    cursor: pointer;
+  }
+  button.send:hover { background: var(--teal-800); border-color: var(--teal-800); }
+  button.send:disabled { opacity: .6; cursor: progress; }
+
+  #status {
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    border-left: 4px solid;
+    display: none;
+    background: #fff;
+  }
+  #status.ok { display: block; color: var(--ok); border-color: var(--ok); }
+  #status.err { display: block; color: var(--danger); border-color: var(--danger); }
+
+  .preview-wrap { position: sticky; top: 16px; }
+  @media (max-width: 860px) { .preview-wrap { position: static; } }
+  iframe {
+    display: block;
+    width: 100%;
+    height: 720px;
+    border: 0;
+    background: var(--teal-50);
+  }
+  @media (max-width: 860px) { iframe { height: 620px; } }
+
+  @media (prefers-reduced-motion: no-preference) {
+    button.send { transition: background-color .15s; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>Gửi email chào mừng thành viên</h1>
+  <p>CLB Khám phá Công nghệ – Trường THPT Nam Hà</p>
+</header>
+
+<main class="layout">
+
+  <section class="panel" aria-labelledby="form-title">
+    <div class="panel-head" id="form-title">Thông tin thành viên</div>
+
+    <form id="emailForm" novalidate>
+      <div class="field">
+        <label for="fullName">Họ và tên thành viên</label>
+        <input id="fullName" name="fullName" type="text" autocomplete="off" placeholder="Nguyễn Văn A" required>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="joinDate">Ngày gia nhập</label>
+          <input id="joinDate" name="joinDate" type="date" required>
+        </div>
+        <div class="field">
+          <label for="memberId">ID thành viên</label>
+          <input id="memberId" name="memberId" type="text" autocomplete="off" placeholder="NH-0001" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="interest">Ngành quan tâm</label>
+        <select id="interest" name="interest" required>
+          <option value="Công nghệ thiết kế kỹ thuật và in 3D">Công nghệ thiết kế kỹ thuật và in 3D</option>
+          <option value="Lập trình vi điều khiển và tự động hóa">Lập trình vi điều khiển và tự động hóa</option>
+          <option value="Công nghệ điện tử và mạch điều khiển">Công nghệ điện tử và mạch điều khiển</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="school">Hiện tại đang học tại</label>
+        <input id="school" name="school" type="text" autocomplete="off" placeholder="Trường THPT Nam Hà" required>
+      </div>
+
+      <div class="field">
+        <label for="email">Email thành viên <span class="hint">(địa chỉ nhận thư)</span></label>
+        <input id="email" name="email" type="email" autocomplete="off" placeholder="thanhvien@example.com" required>
+      </div>
+
+      <hr class="divider">
+
+      <div class="field">
+        <label for="subject">Tiêu đề email</label>
+        <input id="subject" name="subject" type="text" value="Chúc mừng bạn trở thành thành viên chính thức của CLB Khám phá Công nghệ Nam Hà" required>
+      </div>
+
+      <details id="serverSettings">
+        <summary>Cài đặt máy chủ</summary>
+        <div class="field">
+          <label for="apiUrl">Địa chỉ API gửi email</label>
+          <input id="apiUrl" type="text" value="/api/send-email">
+          <span class="hint">Nếu mở file này trực tiếp từ máy (file://), hãy nhập địa chỉ đầy đủ, ví dụ http://localhost:3000/api/send-email</span>
+        </div>
+      </details>
+
+      <button type="submit" class="send" id="sendBtn">Gửi email</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <section class="panel preview-wrap" aria-labelledby="preview-title">
+    <div class="panel-head" id="preview-title">Xem trước email</div>
+    <iframe id="preview" title="Xem trước nội dung email" sandbox=""></iframe>
+  </section>
+
+</main>
+
+<script>
+/* ---------- Cấu hình ---------- */
+const DEFAULT_API_URL = '/api/send-email';
+
+/* ---------- Tiện ích ---------- */
+const $ = (id) => document.getElementById(id);
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// "2026-09-21" -> "21/09/2026"
+function formatDate(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+/* ---------- Mẫu email (HTML đã soạn) ---------- */
+function buildEmailHtml(v) {
+  const name = escapeHtml(v.fullName);
+  const date = escapeHtml(v.joinDate);
+  const id = escapeHtml(v.memberId);
+  const interest = escapeHtml(v.interest);
+  const school = escapeHtml(v.school);
+  const email = escapeHtml(v.email);
+
+  return `<!DOCTYPE html>
+<html lang="vi" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#e4f2f4; font-family:Arial, Helvetica, sans-serif;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#e4f2f4; padding:24px 0;">
+  <tr>
+    <td align="center">
+
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%; background-color:#f6f4ee; border:2px solid #0d5566;">
+        <tr>
+          <td style="background-color:#0d5566; padding:26px 32px; border-bottom:3px solid #0a3f4a;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td valign="middle" style="padding-left:12px;">
+                  <img src="https://namha-tech.io.vn/assets/img/kaiadmin/logo_light.svg" alt="NamHà Tech Club" width="100%" style="display:block; border:0;">
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- BODY -->
+        <tr>
+          <td style="padding:40px 36px 8px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" style="font-family:Arial, Helvetica, sans-serif; font-size:24px; line-height:1.35; font-weight:bold; color:#0d5566; padding-bottom:18px;">
+                 CHÚC MỪNG BẠN
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="font-family:Arial, Helvetica, sans-serif; font-size:26px; font-weight:bold; color:#12697d; border-bottom:2px dashed #5cb3c2; padding-bottom:10px; padding-top:4px;">
+                  ${name}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:24px 36px 8px; font-family:Arial, Helvetica, sans-serif; font-size:15px; line-height:1.7; color:#0a3f4a;">
+            Trở thành thành viên chính thức của CLB Khám phá Công nghệ Trường THPT Nam Hà
+          </td>
+        </tr>
+
+        <!-- DETAILS BOX -->
+        <tr>
+          <td style="padding:24px 36px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#e4f2f4; border:1px solid #cfe6ea;">
+              <tr>
+                <td style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:bold; color:#12697d; border-bottom:1px dashed #cfe6ea;">Trạng thái</td>
+                <td align="right" style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#0a3f4a; border-bottom:1px dashed #cfe6ea;">Đã duyệt ✓</td>
+              </tr>
+              <tr>
+                <td style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:bold; color:#12697d; border-bottom:1px dashed #cfe6ea;">Ngày gia nhập</td>
+                <td align="right" style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#0a3f4a; border-bottom:1px dashed #cfe6ea;">${date}</td>
+              </tr>
+              <tr>
+                <td style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:bold; color:#12697d;">ID Thành Viên</td>
+                <td align="right" style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#0a3f4a;">${id}</td>
+              </tr>
+              <tr>
+                <td style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:bold; color:#12697d;">Ngành quan tâm</td>
+                <td align="right" style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#0a3f4a;">${interest}</td>
+              </tr>
+              <tr>
+                <td style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:bold; color:#12697d;">Hiện tại đang học tại</td>
+                <td align="right" style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#0a3f4a;">${school}</td>
+              </tr>
+              <tr>
+                <td style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:bold; color:#12697d;">Email thành viên</td>
+                <td align="right" style="padding:12px 18px; font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#0a3f4a;">${email}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- CTA BUTTON -->
+        <tr>
+          <td align="center" style="padding:12px 36px 36px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" style="background-color:#12697d; border:2px solid #12697d;">
+                  <a href="https://namha-tech.io.vn/dang-nhap" style="display:inline-block; padding:13px 30px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#f6f4ee; text-decoration:none; letter-spacing:0.3px;">
+                    Đăng nhập vào trang web CLB
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="border-top:2px solid #0d5566; padding:16px 36px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="font-family:Arial, Helvetica, sans-serif; font-size:11px; font-weight:bold; color:#12697d; letter-spacing:0.5px;">
+                  &#9733; THÔNG BÁO CHÍNH THỨC TỪ CLB KHÁM PHÁ CÔNG NGHỆ NAM HÀ
+                </td>
+                <td align="right" style="font-family:Arial, Helvetica, sans-serif; font-size:11px; color:#12697d;">
+                  NAM HA TECH CLUB
+                </td>
+              </tr>
+            </table>
+            <hr>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="font-family:Arial, Helvetica, sans-serif; font-size:11px; font-weight:bold; color:#12697d; letter-spacing:0.5px;">
+                  TỔ VẬT LÝ - CÔNG NGHỆ <br>TRƯỜNG THPT NAM HÀ
+                </td>
+                <td style="font-family:Arial, Helvetica, sans-serif; font-size:9px; font-weight:bold; color:#12697d; letter-spacing:0.5px;">
+                  113/3 Đ. Đặng Văn Trơn, Khu phố Hiệp Hòa, Phường Trấn Biên, TP Đồng Nai
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+      </table>
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>`;
+}
+
+// Bản văn bản thuần cho các ứng dụng email không hiển thị được HTML
+function buildEmailText(v) {
+  return [
+    'CHÚC MỪNG BẠN ' + v.fullName,
+    'Trở thành thành viên chính thức của CLB Khám phá Công nghệ Trường THPT Nam Hà',
+    '',
+    'Trạng thái: Đã duyệt',
+    'Ngày gia nhập: ' + v.joinDate,
+    'ID thành viên: ' + v.memberId,
+    'Ngành quan tâm: ' + v.interest,
+    'Hiện tại đang học tại: ' + v.school,
+    'Email thành viên: ' + v.email,
+    '',
+    'Đăng nhập vào trang web CLB: https://namha-tech.io.vn/dang-nhap'
+  ].join('\n');
+}
+
+/* ---------- Đọc dữ liệu form ---------- */
+function readForm() {
+  return {
+    fullName: $('fullName').value.trim(),
+    joinDate: formatDate($('joinDate').value),
+    memberId: $('memberId').value.trim(),
+    interest: $('interest').value,
+    school: $('school').value.trim(),
+    email: $('email').value.trim(),
+    subject: $('subject').value.trim()
+  };
+}
+
+/* ---------- Xem trước trực tiếp ---------- */
+function updatePreview() {
+  const v = readForm();
+  const shown = {
+    fullName: v.fullName || '[HỌ VÀ TÊN THÀNH VIÊN]',
+    joinDate: v.joinDate || '[NGÀY GIA NHẬP]',
+    memberId: v.memberId || '[ID THÀNH VIÊN]',
+    interest: v.interest,
+    school: v.school || '[TÊN TRƯỜNG]',
+    email: v.email || '[EMAIL THÀNH VIÊN]'
+  };
+  $('preview').srcdoc = buildEmailHtml(shown);
+}
+
+/* ---------- Kiểm tra dữ liệu ---------- */
+const REQUIRED = [
+  ['fullName', 'họ và tên'],
+  ['joinDate', 'ngày gia nhập'],
+  ['memberId', 'ID thành viên'],
+  ['school', 'tên trường'],
+  ['email', 'email thành viên'],
+  ['subject', 'tiêu đề email']
+];
+
+function validate() {
+  let firstBad = null;
+  let message = '';
+
+  for (const [id, label] of REQUIRED) {
+    const el = $(id);
+    const bad = !el.value.trim();
+    el.setAttribute('aria-invalid', bad ? 'true' : 'false');
+    if (bad && !firstBad) { firstBad = el; message = `Hãy nhập ${label}.`; }
+  }
+
+  const emailEl = $('email');
+  if (emailEl.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
+    emailEl.setAttribute('aria-invalid', 'true');
+    if (!firstBad) { firstBad = emailEl; message = 'Email thành viên chưa đúng định dạng, ví dụ: ten@example.com.'; }
+  }
+
+  if (firstBad) {
+    showStatus('err', message);
+    firstBad.focus();
+    return false;
+  }
+  return true;
+}
+
+function showStatus(type, message) {
+  const el = $('status');
+  el.className = type;
+  el.textContent = message;
+}
+
+/* ---------- Gửi email ---------- */
+async function sendEmail(event) {
+  event.preventDefault();
+  if (!validate()) return;
+
+  const v = readForm();
+  const url = $('apiUrl').value.trim() || DEFAULT_API_URL;
+  const btn = $('sendBtn');
+
+  btn.disabled = true;
+  btn.textContent = 'Đang gửi…';
+  showStatus('ok', 'Đang gửi email…');
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: v.email,
+        subject: v.subject,
+        text: buildEmailText(v),
+        html: buildEmailHtml(v)
+      })
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch (_) { /* phản hồi không phải JSON */ }
+
+    if (res.ok && data && data.success) {
+      showStatus('ok', data.message || 'Email đã được gửi thành công!');
+    } else {
+      const detail = data && (data.message || data.error)
+        ? data.message + (data.error ? ` (${data.error})` : '')
+        : `Máy chủ trả về lỗi ${res.status}.`;
+      showStatus('err', detail);
+    }
+  } catch (err) {
+    showStatus('err', 'Không kết nối được tới máy chủ. Kiểm tra địa chỉ API, kết nối mạng và cấu hình CORS.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Gửi email';
+  }
+}
+
+/* ---------- Khởi tạo ---------- */
+(function init() {
+  const today = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  $('joinDate').value = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+  $('apiUrl').value = DEFAULT_API_URL;
+
+  $('emailForm').addEventListener('input', (e) => {
+    if (e.target.hasAttribute && e.target.hasAttribute('aria-invalid')) {
+      e.target.setAttribute('aria-invalid', 'false');
+    }
+    updatePreview();
+  });
+  $('emailForm').addEventListener('submit', sendEmail);
+
+  updatePreview();
+})();
+</script>
+</body>
+</html>

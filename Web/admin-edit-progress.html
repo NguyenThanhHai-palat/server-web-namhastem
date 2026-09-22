@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chỉnh tiến độ đào tạo — CLB Khám phá Công nghệ</title>
+<style>
+  :root{
+    --primary:#1d4ed8; --primary-dark:#1e3a8a; --bg:#f4f6fb; --card:#ffffff;
+    --border:#e2e8f0; --text:#1f2937; --muted:#6b7280; --ok:#16a34a; --warn:#d97706;
+    --danger:#dc2626; --pending:#64748b;
+  }
+  *{box-sizing:border-box}
+  body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:24px;}
+  .wrap{max-width:760px;margin:0 auto;}
+  h1{font-size:1.4rem;color:var(--primary-dark);margin-bottom:4px;}
+  .sub{color:var(--muted);margin-bottom:20px;font-size:.9rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  label{display:block;font-size:.85rem;font-weight:600;margin:12px 0 6px;color:#374151;}
+  select,textarea,input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:.95rem;background:#fff;}
+  textarea{min-height:70px;resize:vertical;font-family:inherit;}
+  button{margin-top:16px;background:var(--primary);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:600;}
+  button:hover{background:var(--primary-dark);}
+  button:disabled{background:#9ca3af;cursor:not-allowed;}
+  .status-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .status-row label.pill{display:flex;align-items:center;gap:6px;border:1px solid var(--border);padding:8px 12px;border-radius:999px;font-weight:500;font-size:.85rem;cursor:pointer;margin:0;}
+  .status-row input[type=radio]{width:auto;}
+  #msg{margin-top:12px;font-size:.9rem;padding:10px 12px;border-radius:8px;display:none;}
+  #msg.ok{display:block;background:#ecfdf3;color:var(--ok);border:1px solid #bbf7d0;}
+  #msg.err{display:block;background:#fef2f2;color:var(--danger);border:1px solid #fecaca;}
+  .badge{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:999px;background:#eef2ff;color:var(--primary-dark);margin-left:6px;}
+  #syncInfo{font-size:.8rem;color:var(--muted);margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chỉnh tiến độ đào tạo</h1>
+  <div class="sub">CLB Khám phá Công nghệ — Trường THPT Nam Hà<span class="badge" id="syncBadge"></span></div>
+
+  <div class="card">
+    <div id="syncInfo">Đang tải danh sách thành viên...</div>
+
+    <label for="user">Người dùng</label>
+    <select id="user"><option value="">— Chọn người dùng —</option></select>
+
+    <label for="chude">Chủ đề</label>
+    <select id="chude"><option value="">— Chọn chủ đề —</option></select>
+
+    <label>Trạng thái</label>
+    <div class="status-row">
+      <label class="pill"><input type="radio" name="trangthai" value="hoàn thành"> Hoàn thành</label>
+      <label class="pill"><input type="radio" name="trangthai" value="chưa hoàn thành"> Chưa hoàn thành</label>
+      <label class="pill"><input type="radio" name="trangthai" value="nợ"> Nợ</label>
+      <label class="pill"><input type="radio" name="trangthai" value="rớt"> Rớt</label>
+    </div>
+
+    <label for="thanhtich">Thành tích (nhập thủ công, có thể để trống)</label>
+    <textarea id="thanhtich" placeholder="VD: Giải nhất thi lập trình cấp trường..."></textarea>
+
+    <button id="submitBtn">Lưu thay đổi</button>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://namha-tech.io.vn"; // đổi nếu domain khác
+const token = localStorage.getItem("token"); // đổi key nếu bạn lưu token chỗ khác
+
+function authHeaders(extra) {
+  return Object.assign({ "Authorization": "Bearer " + token }, extra || {});
+}
+
+const userSel = document.getElementById("user");
+const chudeSel = document.getElementById("chude");
+const syncInfo = document.getElementById("syncInfo");
+const syncBadge = document.getElementById("syncBadge");
+const msg = document.getElementById("msg");
+
+let membersCache = [];
+let giaotrinhCache = [];
+let tiendoCache = [];
+
+async function loadAll() {
+  try {
+    const [membersRes, giaotrinhRes, tiendoRes] = await Promise.all([
+      fetch(`${API_BASE}/tiendotaodao/thanhvien`, { headers: authHeaders() }),
+      fetch(`${API_BASE}/service/clb/get-giaotrinh:giaotrinh`, { headers: authHeaders() }),
+      fetch(`${API_BASE}/service/clb/get-giaotrinh:tiendotaodao`, { headers: authHeaders() }),
+    ]);
+    membersCache = await membersRes.json();
+    const giaotrinhRaw = await giaotrinhRes.json();
+    giaotrinhCache = giaotrinhRaw.data_exam || [];
+    tiendoCache = await tiendoRes.json();
+    if (!Array.isArray(tiendoCache)) tiendoCache = [];
+
+    if (!Array.isArray(membersCache)) {
+      syncInfo.textContent = "Không có quyền admin hoặc lỗi tải danh sách.";
+      return;
+    }
+
+    userSel.innerHTML = '<option value="">— Chọn người dùng —</option>' +
+      membersCache.map(m => `<option value="${m.id}" data-ten="${m.ten || ""}">${m.ten || m.id}</option>`).join("");
+
+    chudeSel.innerHTML = '<option value="">— Chọn chủ đề —</option>' +
+      giaotrinhCache.map(c => `<option value="${c.id_phan}">${c.ten_chu_de}</option>`).join("");
+
+    await syncMissingUsers();
+  } catch (err) {
+    syncInfo.textContent = "Lỗi kết nối máy chủ.";
+    console.error(err);
+  }
+}
+
+// Đồng bộ toàn bộ thành viên từ user.json vào tiendotaodao.json trong 1 lần gọi
+// (server tự tìm ai đang thiếu rồi thêm — xem route /tiendotaodao/refresh-thanhvien).
+async function syncMissingUsers() {
+  const existingIds = new Set(tiendoCache.map(u => u.id));
+  const missing = membersCache.filter(m => !existingIds.has(m.id));
+  if (missing.length === 0) {
+    syncInfo.textContent = "Danh sách tiến độ đào tạo đã đầy đủ thành viên.";
+    return;
+  }
+  syncInfo.textContent = `Đang đồng bộ ${missing.length} thành viên chưa có dữ liệu...`;
+  try {
+    const res = await fetch(`${API_BASE}/tiendotaodao/refresh-thanhvien`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    const data = await res.json();
+    syncBadge.textContent = data.message ? data.message.match(/\d+/)?.[0] ? `+${data.message.match(/\d+/)[0]} user mới` : "" : "";
+    syncInfo.textContent = data.message || "Đã đồng bộ xong.";
+  } catch (e) {
+    console.error("Lỗi đồng bộ:", e);
+    syncInfo.textContent = "Lỗi khi đồng bộ danh sách thành viên.";
+  }
+}
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  msg.className = ""; msg.style.display = "none";
+  const id = userSel.value;
+  const id_phan = chudeSel.value;
+  const trangthaiEl = document.querySelector('input[name="trangthai"]:checked');
+  const thanhtich = document.getElementById("thanhtich").value;
+
+  if (!id || !id_phan || !trangthaiEl) {
+    msg.textContent = "Vui lòng chọn đủ: người dùng, chủ đề và trạng thái.";
+    msg.className = "err"; return;
+  }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true; btn.textContent = "Đang lưu...";
+  try {
+    const res = await fetch(`${API_BASE}/tiendotaodao/edit`, {
+      method: "POST",
+      headers: authHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ id, id_phan, trangthai: trangthaiEl.value, thanhtich }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      msg.textContent = "Đã lưu thành công!";
+      msg.className = "ok";
+    } else {
+      msg.textContent = data.message || "Có lỗi xảy ra.";
+      msg.className = "err";
+    }
+  } catch (err) {
+    msg.textContent = "Lỗi kết nối máy chủ.";
+    msg.className = "err";
+  } finally {
+    btn.disabled = false; btn.textContent = "Lưu thay đổi";
+  }
+});
+
+loadAll();
+</script>
+</body>
+</html>

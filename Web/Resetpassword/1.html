@@ -147,7 +147,7 @@
       // (tránh lộ thông tin tài khoản nào tồn tại), nên cứ chuyển sang bước 2.
       sessionStorage.setItem('reset_email', val);
       sessionStorage.setItem('reset_service', SERVICE_NAME);
-      window.location.href = '2';
+      window.location.href = '/resetpassword/step-2';
     })
     .catch(() => {
       errMsg.textContent = 'Có lỗi xảy ra, thử lại sau.';

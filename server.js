@@ -482,15 +482,7 @@ app.post("/service/user/forgot-password", async (req, res) => {
             JSON.stringify(resetData, null, 2),
             "utf8"
         );
-        await smtpTransporter.sendMail({
-            from: `"Nam Ha Tech Support" <service@namha-tech.io.vn>`,
-            to: user.email,
-            subject: "Mã xác nhận đặt lại mật khẩu",
-            text:
-                `Mã xác nhận của bạn là: ${otp}\n\n` +
-                `Mã có hiệu lực trong 5 phút.\n` +
-                `Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.`
-        });
+        await sendEmail(user.email, "Mã xác nhận đặt lại mật khẩu", `Mã xác nhận của bạn là: ${otp}\n\n` + `Mã có hiệu lực trong 5 phút.\n` + `Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.`, null);
         return res.json({
             message: "Nếu tài khoản tồn tại, mã xác nhận đã được gửi"
         });
@@ -848,6 +840,12 @@ app.get("/resetpassword/step-2", (req, res) => {
 } )
 app.get("/resetpassword/step-3", (req, res) => {
   res.sendFile(path.join(__dirname, "Web","Resetpassword","3.html"));
+} )
+app.get("/admin/tiendo", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","admin-edit-orogress.html"));
+} )
+app.get("/admin/chuede", (req, res) => {
+  res.sendFile(path.join(__dirname, "Web","add-topic.html"));
 } )
 app.use('/assets', express.static(path.join(__dirname, "Web","Webbuild","kaiadmin-lite-1.2.0","assets")));
 app.listen(port, () => {

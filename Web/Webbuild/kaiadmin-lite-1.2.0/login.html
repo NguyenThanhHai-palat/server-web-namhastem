@@ -40,20 +40,30 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="assets/css/login.css" />
+
+    <style>
+      .form-error{
+        color:#c0392b; font-size:12.5px; margin:-6px 0 14px; min-height:16px;
+      }
+      .register-cta{
+        text-align:center; margin-top:16px; font-size:13.5px;
+      }
+      .register-cta a{
+        font-weight:700; text-decoration:none;
+      }
+      .register-cta a:hover{
+        text-decoration:underline;
+      }
+    </style>
   </head>
   <body>
     <div class="auth-page">
       <div class="auth-card">
         <div class="auth-header">
-        
+
         </div>
 
-        <div class="auth-tabs" role="tablist" aria-label="Auth tabs">
-          <button class="tab-btn" hidden type="button" onclick="toggleAuth('login')">Đăng nhập</button>
-          <button class="tab-btn active" type="button" onclick="toggleAuth('register')">Đăng ký tham gia</button>
-        </div>
-
-        <form id="login-form" class="auth-form">
+        <form id="login-form" class="auth-form active">
           <div class="input-group">
             <div class="input-with-icon">
               <i class="fas fa-envelope"></i>
@@ -68,121 +78,20 @@
             </div>
           </div>
 
+          <div class="form-error" id="loginErr"></div>
+
           <div class="form-options">
-            <a href="#" onclick="alert('Vui lòng inbox với chủ web để được hỗ trợ khôi phục mật khẩu.')">Quên mật khẩu?</a>
+            <a href="/resetpassword">Quên mật khẩu?</a>
           </div>
 
-          <button type="button" class="btn-auth" onclick="login()">Đăng nhập</button>
-        </form>
+          <button type="button" class="btn-auth" id="loginBtn" onclick="login()">Đăng nhập</button>
 
-        <form id="register-form" class="auth-form  active">
-          <div class="field">
-            <label for="fullName">Họ và tên</label>
-            <input type="text" id="fullName" name="fullName" placeholder="Nguyễn Văn A" required>
-            <span class="field-error">Vui lòng nhập họ và tên.</span>
+          <div class="register-cta">
+            Chưa có tài khoản? <a href="/thanh-vien-moi">Đăng ký tham gia</a>
           </div>
-
-          <label class="checkline" for="isAlumni">
-            <input type="checkbox" id="isAlumni" name="isAlumni">
-            <span>Tôi là cựu học sinh của trường</span>
-          </label>
-
-          <div class="collapsible open" id="classCollapse">
-            <div class="field">
-              <label for="className">Lớp</label>
-              <input type="text" id="className" name="className" placeholder="VD: 11A3">
-              <span class="field-error">Vui lòng nhập lớp.</span>
-            </div>
-          </div>
-
-          <div class="collapsible" id="alumniCollapse">
-            <div class="field">
-              <label for="university">Trường Đại học / Cao đẳng</label>
-              <input type="text" id="university" name="university" placeholder="VD: Đại học Bách Khoa Hà Nội">
-              <span class="field-error">Vui lòng nhập tên trường.</span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Lĩnh vực quan tâm</label>
-            <div class="radio-group" id="interestGroup">
-              <label class="radio-opt">
-                <input type="radio" name="interest" value="design-3d">
-                <span class="opt-text">Công nghệ thiết kế kỹ thuật và in 3D</span>
-              </label>
-              <label class="radio-opt">
-                <input type="radio" name="interest" value="electronics">
-                <span class="opt-text">Công nghệ điện tử và mạch điều khiển</span>
-              </label>
-              <label class="radio-opt">
-                <input type="radio" name="interest" value="embedded">
-                <span class="opt-text">Lập trình vi điều khiển và tự động hóa</span>
-              </label>
-            </div>
-            <span class="field-error" id="interestError">Vui lòng chọn một lĩnh vực.</span>
-          </div>
-
-          <div class="field">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="ban@example.com" required>
-            <span class="field-error">Vui lòng nhập email hợp lệ.</span>
-          </div>
-
-          <div class="field">
-            <label for="password">Mật khẩu</label>
-            <input type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
-            <span class="field-error">Mật khẩu cần ít nhất 6 ký tự.</span>
-          </div>
-
-          <div class="field">
-            <label for="reason">Vì sao bạn muốn tham gia? <span class="hint">(vài câu ngắn)</span></label>
-            <textarea id="reason" name="reason" placeholder="Chia sẻ lý do của bạn..." required></textarea>
-            <span class="field-error">Vui lòng chia sẻ lý do tham gia.</span>
-          </div>
-
-          <button type="submit" class="submit-btn" id="submitBtn">Đăng ký</button>
         </form>
       </div>
     </div>
-
-    <script>
-      function toggleAuth(type) {
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const tabs = document.querySelectorAll('.tab-btn');
-
-        if (type === 'login') {
-          loginForm.classList.add('active');
-          registerForm.classList.remove('active');
-          tabs[0].classList.add('active');
-          tabs[1].classList.remove('active');
-        } else {
-          loginForm.classList.remove('active');
-          registerForm.classList.add('active');
-          tabs[0].classList.remove('active');
-          tabs[1].classList.add('active');
-        }
-      }
-
-      const alumniCheck = document.getElementById('isAlumni');
-      const alumniCollapse = document.getElementById('alumniCollapse');
-      const classCollapse = document.getElementById('classCollapse');
-
-      function updateAlumniFields() {
-        if (alumniCheck.checked) {
-          alumniCollapse.classList.add('open');
-          classCollapse.classList.remove('open');
-        } else {
-          alumniCollapse.classList.remove('open');
-          classCollapse.classList.add('open');
-        }
-      }
-
-      alumniCheck.addEventListener('change', updateAlumniFields);
-      updateAlumniFields();
-    </script>
-  </body>
-</html>
 
     <script src="assets/js/core/jquery-3.7.1.min.js"></script>
     <script src="assets/js/core/popper.min.js"></script>
@@ -218,38 +127,53 @@
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="assets/js/setting-demo.js"></script>
+
     <script>
-      function toggleAuth(type) {
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const tabs = document.querySelectorAll('.tab-btn');
+      // ==== Cấu hình API (khớp với các file quên-mật-khẩu) ====
+      const API_BASE = "https://namha-tech.io.vn"; // đổi nếu domain khác
+      const SERVICE_NAME = "namha-tech-club"; // phải khớp field "service" khi tạo tài khoản
 
-        if (type === 'login') {
-          loginForm.classList.add('active');
-          registerForm.classList.remove('active');
-          tabs[0].classList.add('active');
-          tabs[1].classList.remove('active');
-        } else {
-          loginForm.classList.remove('active');
-          registerForm.classList.add('active');
-          tabs[0].classList.remove('active');
-          tabs[1].classList.add('active');
+      // ==== ĐĂNG NHẬP -> POST /service/user/login ====
+      function login() {
+        const emailEl = document.getElementById('l_email');
+        const pwEl = document.getElementById('l_password');
+        const errEl = document.getElementById('loginErr');
+        const btn = document.getElementById('loginBtn');
+
+        const email = emailEl.value.trim();
+        const password = pwEl.value;
+        errEl.textContent = '';
+
+        if (!email || !password) {
+          errEl.textContent = 'Vui lòng nhập đầy đủ email và mật khẩu.';
+          return;
         }
+
+        btn.disabled = true;
+        btn.textContent = 'Đang đăng nhập...';
+
+        fetch(`${API_BASE}/service/user/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, service: SERVICE_NAME })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+          if (ok && data.token) {
+            localStorage.setItem('namha_token', data.token);
+            window.location.href = '/'; // TODO: đổi sang trang đích sau khi đăng nhập
+          } else {
+            errEl.textContent = data.message || 'Đăng nhập thất bại.';
+            btn.disabled = false;
+            btn.textContent = 'Đăng nhập';
+          }
+        })
+        .catch(() => {
+          errEl.textContent = 'Có lỗi xảy ra, thử lại sau.';
+          btn.disabled = false;
+          btn.textContent = 'Đăng nhập';
+        });
       }
-
-
-      function updateAlumniFields() {
-        if (alumniCheck.checked) {
-          alumniCollapse.classList.add('open');
-          classCollapse.classList.remove('open');
-        } else {
-          alumniCollapse.classList.remove('open');
-          classCollapse.classList.add('open');
-        }
-      }
-
-      classCollapse.classList.add('open');
-      alumniCheck.addEventListener('change', updateAlumniFields);
     </script>
   </body>
 </html>

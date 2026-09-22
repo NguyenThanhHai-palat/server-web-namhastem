@@ -209,7 +209,7 @@
     .then(({ ok, data }) => {
       if (ok && data.resetToken) {
         sessionStorage.setItem('reset_token', data.resetToken);
-        window.location.href = '3.html';
+        window.location.href = '/resetpassword/step-3';
       } else {
         errMsg.textContent = data.message || 'Mã OTP không đúng.';
         submitBtn.disabled = false;
